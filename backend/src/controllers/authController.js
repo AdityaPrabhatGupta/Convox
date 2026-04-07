@@ -30,7 +30,7 @@ const registerUser = async (req, res) => {
     const newUser = await User.create({
       name,
       email: email.toLowerCase(),
-      password, // ✅ plain password — pre('save') hook hashes it
+      password, 
     });
 
     const token = generateToken(newUser._id);

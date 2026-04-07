@@ -1,119 +1,84 @@
-import Chat from "../models/chat.js";
+import Chat from "../models/Chat.js";
 import User from "../models/User.js";
+import asyncHandler from "../utils/asyncHandler.js";
 
-// @desc    Create or fetch one-to-one chat
-// @route   POST /api/chat
+
+// @desc    Create or fetch a one-to-one chat
+// @route   POST /api/chats
 // @access  Protected
-const createOrFetchChat = async (req, res) => {
+const createOrFetchChat = asyncHandler(async (req, res) => {
   const { userId } = req.body;
 
-  // Validate: userId must be present
+  //Validations
   if (!userId) {
-    return res.status(400).json({
-      success: false,
-      message: "userId is required",
-    });
+    res.status(400);
+    throw new Error("userId is required.");
   }
 
-  // Validate: cannot chat with yourself
   if (userId === req.user._id.toString()) {
-    return res.status(400).json({
-      success: false,
-      message: "You cannot start a chat with yourself",
-    });
+    res.status(400);
+    throw new Error("You cannot start a chat with yourself.");
   }
 
-  try {
-    // Validate: target user must exist in DB
-    const targetUser = await User.findById(userId);
-    if (!targetUser) {
-      return res.status(404).json({
-        success: false,
-        message: "User not found",
-      });
-    }
-
-    // Check if a one-to-one chat already exists between both users
-    const existingChat = await Chat.find({
-      $and: [
-        { isGroupChat: false },
-        { users: { $elemMatch: { $eq: req.user._id } } },
-        { users: { $elemMatch: { $eq: userId } } },
-      ],
-    })
-      .populate("users", "-password")
-      .populate("latestMessage");
-
-    // Return existing chat if found
-    if (existingChat.length > 0) {
-      return res.status(200).json({
-        success: true,
-        message: "Chat already exists",
-        chat: existingChat[0],
-      });
-    }
-
-    // Create new one-to-one chat
-    // groupName and groupAdmin stay as schema defaults ("" and null)
-    const createdChat = await Chat.create({
-      users: [req.user._id, userId],
-      isGroupChat: false,
-    });
-
-    // Re-fetch with populated user details (create() doesn't auto-populate)
-    const fullChat = await Chat.findById(createdChat._id).populate(
-      "users",
-      "-password"
-    );
-
-    return res.status(201).json({
-      success: true,
-      message: "Chat created successfully",
-      chat: fullChat,
-    });
-  } catch (error) {
-    console.error("createOrFetchChat error:", error.message);
-    return res.status(500).json({
-      success: false,
-      message: "Internal server error",
-    });
+  const targetUser = await User.findById(userId);
+  if (!targetUser) {
+    res.status(404);
+    throw new Error("Target user not found.");
   }
-};
 
-const fetchChats = async (req, res) => {
-  try {
-    // Step 1: Find all chats where logged-in user is a participant
-    const chats = await Chat.find({ users: req.user._id })
+  // Check for existing chat
+  const existingChat = await Chat.findOne({
+    isGroupChat: false,
+    users: { $all: [req.user._id, userId] },  // cleaner than two $elemMatch
+  })
+    .populate("users", "-password")
+    .populate("latestMessage");
 
-      // Step 2: Populate all users in the chat (exclude password)
-      .populate("users", "name email profilePic")
-
-      // Step 3: Nested populate — latestMessage AND its sender
-      .populate({
-        path: "latestMessage",
-        populate: {
-          path: "sender",
-          select: "name email profilePic",
-        },
-      })
-
-      // Step 4: Sort by most recently updated (latest message first)
-      .sort({ updatedAt: -1 });
-
-    // Step 5: Return the enriched chats list
+  if (existingChat) {
     return res.status(200).json({
       success: true,
-      count: chats.length,
-      chats,
-    });
-  } catch (error) {
-    console.error("fetchChats error:", error.message);
-    return res.status(500).json({
-      success: false,
-      message: "Internal server error",
+      message: "Chat fetched successfully.",
+      chat: existingChat,
     });
   }
-};
+
+  //  Create new chat
+  const created = await Chat.create({
+    isGroupChat: false,
+    users: [req.user._id, userId],
+  });
+
+  const fullChat = await Chat.findById(created._id)
+    .populate("users", "-password");
+
+  return res.status(201).json({
+    success: true,
+    message: "Chat created successfully.",
+    chat: fullChat,
+  });
+});
+
+// @desc    Fetch all chats for logged-in user
+// @route   GET /api/chats
+// @access  Protected
+
+const fetchChats = asyncHandler(async (req, res) => {
+  const chats = await Chat.find({ users: req.user._id })
+    .populate("users", "name email profilePic")
+    .populate({
+      path: "latestMessage",
+      populate: {
+        path: "sender",
+        select: "name email profilePic",
+      },
+    })
+    .sort({ updatedAt: -1 });
+
+  return res.status(200).json({
+    success: true,
+    count: chats.length,
+    chats,
+  });
+});
 
 export { createOrFetchChat, fetchChats };
-

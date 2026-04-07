@@ -1,46 +1,56 @@
-import { Schema, model } from "mongoose";
+import { Schema, model } from 'mongoose';
 
 const chatSchema = new Schema(
-  {
-    // Array of users in this conversation
+    {
+        users: {
+            type: [{ type: Schema.Types.ObjectId, ref: 'User' }],
+            validate: {
+                validator: (arr) => arr.length >= 2 && arr.length <= 50,
+                message: 'A chat must have between 2 and 50 users.',
+            },
+        },
 
-    users: [
-      {
-        type: Schema.Types.ObjectId,
-        ref: "User",
-        required: true,
-      },
-    ],
+        latestMessage: {
+            type: Schema.Types.ObjectId,
+            ref: 'Message',
+            default: null,
+        },
 
-    // Latest message in this chat (for preview in chat list)
+        isGroupChat: {
+            type: Boolean,
+            default: false,
+        },
 
-    latestMessage: {
-      type: Schema.Types.ObjectId,
-      ref: "Message",
-      default: null,
+        groupName: {
+            type: String,
+            trim: true,
+            default: '',
+            validate: {
+                validator: function (val) {
+                    return !this.isGroupChat || (val && val.trim().length > 0);
+                },
+                message: 'Group name is required for group chats.',
+            },
+        },
+
+        groupAdmin: {
+            type: Schema.Types.ObjectId,
+            ref: 'User',
+            default: null,
+            validate: {
+                validator: function (val) {
+                    return !this.isGroupChat || val != null;
+                },
+                message: 'Group admin is required for group chats.',
+            },
+        },
     },
-    // For group chats (future use)
-    isGroupChat: {
-      type: Boolean,
-      default: false,
-    },
-
-    groupName: {
-      type: String,
-      trim: true,
-      default: "",
-    },
-
-    groupAdmin: {
-      type: Schema.Types.ObjectId,
-      ref: "User",
-      default: null,
-    },
-  },
-
-  { timestamps: true }, // adds createdAt and updatedAt automatically
+    { timestamps: true },
 );
 
-const Chat = model("Chat", chatSchema);
+chatSchema.index({ users: 1 });
+chatSchema.index({ latestMessage: 1 });
+
+const Chat = model('Chat', chatSchema);
 
 export default Chat;
