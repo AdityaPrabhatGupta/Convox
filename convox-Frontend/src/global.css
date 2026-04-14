@@ -1,0 +1,138 @@
+/* ============================================
+   CONVOX — Global Styles & Design Tokens
+   Day 26: Premium UI Upgrade
+   ============================================ */
+
+/* ---------- Google Font Import ---------- */
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap');
+
+/* ---------- Design Tokens ---------- */
+:root {
+  /* Colors */
+  --color-bg:          #F8F9FC;
+  --color-sidebar:     #F2F5FA;
+  --color-primary:     #7888A8;
+  --color-primary-dark:#6273A0;
+  --color-accent:      #C48898;
+  --color-accent-dark: #B5717F;
+
+  /* Text */
+  --color-text-primary:   #2D3142;
+  --color-text-secondary: #6B748A;
+  --color-text-muted:     #9AA3B5;
+
+  /* Borders */
+  --color-border:       #E2E8F0;
+  --color-border-focus: rgba(120, 136, 168, 0.4);
+
+  /* Status */
+  --color-online:  #52C47E;
+  --color-offline: #B0B8C8;
+  --color-busy:    #F0A050;
+
+  /* Surfaces */
+  --color-surface:       #FFFFFF;
+  --color-surface-hover: rgba(120, 136, 168, 0.08);
+  --color-surface-active:rgba(120, 136, 168, 0.14);
+
+  /* Bubble colors */
+  --color-bubble-mine:   #7888A8;
+  --color-bubble-other:  #FFFFFF;
+  --color-bubble-text-mine:  #FFFFFF;
+  --color-bubble-text-other: #2D3142;
+
+  /* Typography */
+  --font-main: 'DM Sans', sans-serif;
+  --font-mono: 'DM Mono', monospace;
+
+  /* Spacing */
+  --space-xs:  4px;
+  --space-sm:  8px;
+  --space-md:  12px;
+  --space-lg:  16px;
+  --space-xl:  24px;
+
+  /* Radii */
+  --radius-sm:   6px;
+  --radius-md:   10px;
+  --radius-lg:   14px;
+  --radius-xl:   20px;
+  --radius-full: 9999px;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 3px rgba(45, 49, 66, 0.06);
+  --shadow-md: 0 4px 12px rgba(45, 49, 66, 0.08);
+
+  /* Transitions */
+  --transition-fast:   all 0.15s ease;
+  --transition-normal: all 0.22s ease;
+  --transition-spring: all 0.28s cubic-bezier(0.22, 0.68, 0, 1.2);
+}
+
+/* ---------- Reset ---------- */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body, #root {
+  height: 100%;
+  overflow: hidden;
+}
+
+body {
+  font-family: var(--font-main);
+  font-size: 14px;
+  background: var(--color-bg);
+  color: var(--color-text-primary);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ---------- Message Entry Animation ---------- */
+@keyframes msgSlide {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* ---------- Typing Indicator Bounce ---------- */
+@keyframes typingBounce {
+  0%, 60%, 100% { transform: translateY(0); }
+  30%           { transform: translateY(-5px); }
+}
+
+/* ---------- Pulse for online dot ---------- */
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.55; }
+}
+
+/* ---------- Fade In (for empty state) ---------- */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ---------- Scrollbar ---------- */
+::-webkit-scrollbar {
+  width: 4px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: var(--radius-full);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-text-muted);
+}

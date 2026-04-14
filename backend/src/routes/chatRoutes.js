@@ -1,7 +1,7 @@
 // routes/chatRoutes.js
 import express from "express";
-import { createOrFetchChat ,fetchChats } from "../src/controllers/chatController.js";
-import  protect  from "../src/middleware/authMiddleware.js"; 
+import { createOrFetchChat ,fetchChats } from "../controllers/chatController.js";
+import  protect  from "../middleware/authMiddleware.js"; 
 const router = express.Router();
 
 // POST /api/chat

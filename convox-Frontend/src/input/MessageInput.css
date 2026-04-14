@@ -1,0 +1,128 @@
+/* ============================================
+   MessageInput.css — Premium SaaS Style
+   ============================================ */
+
+/* ---------- Wrapper (The Glass Layer) ---------- */
+.input-area {
+  position: sticky;
+  bottom: 0;
+  padding: 16px 20px 24px; /* Extra bottom padding for floating feel */
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-top: 1px solid rgba(226, 232, 240, 0.6);
+  z-index: 10;
+  flex-shrink: 0;
+}
+
+/* ---------- Inner Pill Container ---------- */
+.input-glass {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--color-surface, #ffffff);
+  border: 1px solid var(--color-border, #e2e8f0);
+  border-radius: var(--radius-xl, 24px);
+  padding: 6px 6px 6px 20px;
+  box-shadow: var(--shadow-sm, 0 1px 2px rgba(15,23,42,0.04));
+  transition: border-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+/* Focus state - Premium Indigo Glow */
+.input-glass:focus-within {
+  border-color: var(--color-primary, #6366f1);
+  box-shadow: 0 0 0 3px var(--color-primary-alpha, rgba(99, 102, 241, 0.12)), 
+              var(--shadow-sm, 0 1px 2px rgba(15,23,42,0.04));
+}
+
+/* ---------- Text input ---------- */
+.input-glass__field {
+  flex: 1;
+  border: none;
+  background: transparent;
+  font-family: inherit;
+  font-size: 14.5px;
+  color: var(--color-text-primary, #0f172a);
+  outline: none;
+  min-width: 0;
+  line-height: 1.5;
+}
+
+.input-glass__field::placeholder {
+  color: var(--color-text-muted, #94a3b8);
+}
+
+/* ---------- Action buttons row ---------- */
+.input-glass__actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+/* ---------- Icon buttons (emoji, attach, mic) ---------- */
+.input-icon-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: none;
+  background: transparent;
+  color: var(--color-text-muted, #94a3b8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease, transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.input-icon-btn:hover {
+  background: var(--color-bg-sidebar, #f8fafc);
+  color: var(--color-primary, #6366f1);
+  transform: scale(1.05);
+}
+
+.input-icon-btn svg {
+  width: 18px;
+  height: 18px;
+}
+
+/* ---------- Send button ---------- */
+.send-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: none;
+  background: linear-gradient(135deg, var(--color-primary, #6366f1), var(--color-primary-dark, #4f46e5));
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 2px 6px rgba(99, 102, 241, 0.3);
+  margin-left: 4px;
+}
+
+.send-btn:hover:not(:disabled) {
+  transform: scale(1.08) translateY(-1px);
+  box-shadow: 0 4px 10px rgba(99, 102, 241, 0.4);
+}
+
+.send-btn:active:not(:disabled) {
+  transform: scale(0.95);
+}
+
+.send-btn:disabled {
+  background: var(--color-border, #e2e8f0);
+  color: var(--color-text-muted, #94a3b8);
+  box-shadow: none;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.send-btn svg {
+  width: 16px;
+  height: 16px;
+  margin-left: 2px;  /* optical center for send icon */
+}

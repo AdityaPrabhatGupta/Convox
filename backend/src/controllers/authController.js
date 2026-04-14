@@ -12,10 +12,10 @@ const registerUser = async (req, res) => {
       });
     }
 
-    if (password.length < 6) {
+    if (password.length < 8) {
       return res.status(400).json({
         success: false,
-        message: "Password must be at least 6 characters",
+        message: "Password must be at least 8 characters",
       });
     }
 
@@ -114,7 +114,7 @@ const getUserProfile = async(req,res) =>{
         _id: user._id,
         name: user.name,
         email:user.email,
-        proiflePic: user.proiflePic,
+        profilePic: user.profilePic,
         createdAt: user.createdAt,
       },
     });

@@ -1,0 +1,15 @@
+/* src/pages/Chat.css */
+
+.chat-page {
+  display: flex;
+  height: 100vh;
+  width: 100%;
+  overflow: hidden;
+}
+
+.chat-page__status {
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-secondary);
+  font-size: 14px;
+}

@@ -1,12 +1,8 @@
 import jwt from 'jsonwebtoken';
 import User from '../models/User.js';
 
-const JWT_SECRET = process.env.JWT_SECRET;
-if (!JWT_SECRET) throw new Error('JWT_SECRET is not defined in environment');
-
 const protect = async (req, res, next) => {
     try {
-        // 1. Check Authorization header
         const authHeader = req.headers.authorization;
         if (!authHeader || !authHeader.startsWith('Bearer ')) {
             return res.status(401).json({
@@ -15,7 +11,6 @@ const protect = async (req, res, next) => {
             });
         }
 
-        // 2. Extract and sanitize token
         const token = authHeader.split(' ')[1]?.trim();
         if (!token) {
             return res.status(401).json({
@@ -24,10 +19,8 @@ const protect = async (req, res, next) => {
             });
         }
 
-        // 3. Verify token — TokenExpiredError before JsonWebTokenError
-        const decoded = jwt.verify(token, JWT_SECRET);
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-        // 4. Fetch user (exclude password)
         const user = await User.findById(decoded.id).select('-password');
         if (!user) {
             return res.status(401).json({
@@ -36,7 +29,6 @@ const protect = async (req, res, next) => {
             });
         }
 
-        // 5. Attach user and continue
         req.user = user;
         next();
 

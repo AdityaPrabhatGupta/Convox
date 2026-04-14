@@ -1,6 +1,6 @@
 import Message from '../models/Message.js';
 import Chat from '../models/Chat.js';
-import asyncHandler from 'express-async-handler';
+import asyncHandler from '../utils/asyncHandler.js';
 import mongoose from 'mongoose';
 
 // POST /api/messages

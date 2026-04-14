@@ -38,15 +38,16 @@ const userSchema = new Schema(
     { timestamps: true }
 );
 
-userSchema.pre('save', async function (next) {
-    if (!this.isModified('password')) return next();
+userSchema.pre('save', async function () {
+    if (!this.isModified('password')) return;
     this.password = await bcrypt.hash(this.password, 12);
-    next();
 });
 
 userSchema.methods.comparePassword = function (candidatePassword) {
     return bcrypt.compare(candidatePassword, this.password);
 };
+
+userSchema.index({ name: "text", email: "text" });
 
 const User = model('User', userSchema);
 
