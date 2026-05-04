@@ -345,28 +345,28 @@ function Modal({ open, title, desc, confirmLabel, confirmTone = "default", note 
   return createPortal(
     <>
       <div className="cx-overlay-backdrop relationship-modal__backdrop" onClick={onCancel} />
-      <div className="cx-overlay-shell relationship-modal-shell" role="dialog" aria-modal="true">
-        <div className="rb__drawer rb__drawer--centered relationship-modal">
-          <div className="relationship-modal__header">
+      <div className="cx-overlay-shell action-dialog-shell" role="dialog" aria-modal="true">
+        <div className="rb__drawer rb__drawer--centered action-dialog">
+          <div className="action-dialog__header">
             <div>
-              <h3 className="relationship-modal__title">{title}</h3>
-              <p className="relationship-modal__description">{desc}</p>
+              <h3 className="action-dialog__title">{title}</h3>
+              <p className="action-dialog__description">{desc}</p>
             </div>
-            <button type="button" className="relationship-modal__close" onClick={onCancel} aria-label="Close dialog">x</button>
+            <button type="button" className="action-dialog__close" onClick={onCancel} aria-label="Close dialog">x</button>
           </div>
-          <div className="relationship-modal__body">
+          <div className="action-dialog__body">
             {includeDelete && (
-              <label className="relationship-modal__option">
+              <label className="action-dialog__option">
                 <input type="checkbox" checked={deleteChat} onChange={(e) => onToggleDelete?.(e.target.checked)} />
                 <span>Also delete this chat history</span>
               </label>
             )}
             {children}
-            {note && <div className="relationship-modal__note">{note}</div>}
+            {note && <div className="action-dialog__note">{note}</div>}
           </div>
-          <div className="relationship-modal__actions">
-            <button type="button" className="relationship-modal__cancel" onClick={onCancel}>Cancel</button>
-            <button type="button" className={`relationship-modal__confirm relationship-modal__confirm--${confirmTone}`} onClick={onConfirm} disabled={loading || confirmDisabled}>
+          <div className="action-dialog__actions">
+            <button type="button" className="action-dialog__cancel" onClick={onCancel}>Cancel</button>
+            <button type="button" className={`action-dialog__confirm action-dialog__confirm--${confirmTone}`} onClick={onConfirm} disabled={loading || confirmDisabled}>
               {loading ? "Please wait..." : confirmLabel}
             </button>
           </div>
