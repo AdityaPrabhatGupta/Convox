@@ -50,6 +50,7 @@ export const searchUsers = async (req, res) => {
     const users = await User.find({
       _id: { $nin: [currentUserId, ...blockedByCurrentUser] },
       blockedUsers: { $ne: currentUserId },
+      isBot: { $ne: true },
       $or: [{ name: regex }, { email: regex }],
     })
       .select("_id name email profilePic bio lastSeen")
