@@ -3,9 +3,7 @@ import { addNotification } from "./notificationStore.js";
 import { playNotificationSound } from "./notificationSound.js";
 import { getToken, refreshAccessToken } from "../utils/auth.js";
 
-const socketUrl =
-  import.meta.env.VITE_SOCKET_URL ||
-  (typeof window !== "undefined" ? window.location.origin : "http://localhost:5000");
+const socketUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
 export const socket = io(socketUrl, {
   autoConnect: false,
