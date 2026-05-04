@@ -8,7 +8,7 @@ import {
   seedAssistantUser,
   syncAssistantChatsForAllUsers,
 } from "./services/assistantSeeder.js";
-import { corsOptions, getAllowedOrigins } from "./config/cors.js";
+// import { corsOptions, getAllowedOrigins } from "./config/cors.js";
 import logger from "./config/logger.js";
 import { connectRedis, disconnectRedis, initializeSocketRedisAdapter } from "./config/redis.js";
 import socketAuth from "./socket/socketAuth.js";
@@ -19,9 +19,8 @@ validateRequiredEnv();
 const httpServer = createServer(app);
 const io = new Server(httpServer, {
   cors: {
-    origin: getAllowedOrigins(),
-    methods: ["GET", "POST"],
-    credentials: corsOptions.credentials,
+    origin: process.env.CLIENT_URL,
+    credentials: true,
   },
   pingTimeout: 60000,
   pingInterval: 25000,

@@ -12,6 +12,8 @@ const axiosInstance = axios.create({
   },
 });
 
+axios.defaults.withCredentials = true;
+
 let refreshPromise = null;
 
 // Request Interceptor

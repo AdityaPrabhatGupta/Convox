@@ -5,7 +5,7 @@ import cookieParser from "cookie-parser";
 import helmet from "helmet";
 import connectDB from './config/db.js';
 import { getDatabaseHealth } from "./config/db.js";
-import { corsOptions } from "./config/cors.js";
+// import { corsOptions } from "./config/cors.js";
 import logger from "./config/logger.js";
 import { isRedisReady } from "./config/redis.js";
 import {
@@ -25,7 +25,10 @@ const app = express();
 connectDB();
 
 //CORS
-app.use(cors(corsOptions));
+app.use(cors({
+  origin: process.env.CLIENT_URL,
+  credentials: true,
+}));
 app.use(helmet({
     crossOriginResourcePolicy: { policy: "cross-origin" },
 }));
