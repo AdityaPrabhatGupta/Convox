@@ -33,7 +33,7 @@ const publicUser = (user) => ({
 });
 
 function getRedirectBaseUrl() {
-  return process.env.BACKEND_URL || "http://localhost:5000";
+  return process.env.BASE_URL || process.env.BACKEND_URL || "http://localhost:5000";
 }
 
 async function fetchGoogleProfile(code) {
