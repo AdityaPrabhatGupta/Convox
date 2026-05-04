@@ -11,7 +11,7 @@ function AccountPreview({ user, onClose }) {
     <>
       <div className="cx-overlay-backdrop" onClick={onClose} />
       <div style={{ position: "fixed", inset: 0, zIndex: 100000, display: "flex", alignItems: "center", justifyContent: "center", padding: "24px" }}>
-        <div className="cx-overlay-shell usm__preview" style={{ width: "min(92vw, 420px)" }}>
+        <div className="usm__preview" style={{ width: "min(92vw, 420px)" }}>
             <div className="usm__preview-header">
               <button type="button" className="usm__preview-close" onClick={onClose} aria-label="Close">
                 <svg width="11" height="11" viewBox="0 0 11 11" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"><line x1="1" y1="1" x2="10" y2="10"/><line x1="10" y1="1" x2="1" y2="10"/></svg>
@@ -86,7 +86,7 @@ const UserSearchModal = ({ onClose }) => {
     <>
       <div className="cx-overlay-backdrop" onClick={handleClose} />
       <div style={{ position: "fixed", inset: 0, zIndex: 99999, display: "flex", alignItems: "center", justifyContent: "center", padding: "24px" }} role="dialog" aria-modal="true" aria-label="Find people">
-        <div className="cx-overlay-shell usm" style={{ width: "min(92vw, 560px)" }}>
+        <div className="usm" style={{ width: "min(92vw, 560px)" }}>
             {/* Header */}
             <div className="usm__header">
               <h2 className="usm__title">Find People</h2>
