@@ -32,16 +32,23 @@ const publicUser = (user) => ({
   createdAt: user.createdAt,
 });
 
-function getRedirectBaseUrl() {
-  return process.env.BASE_URL || process.env.BACKEND_URL || "http://localhost:5000";
+function getRedirectBaseUrl(req) {
+  if (process.env.BASE_URL) return process.env.BASE_URL.replace(/\/$/, "");
+  if (process.env.BACKEND_URL) return process.env.BACKEND_URL.replace(/\/$/, "");
+  if (req) {
+    const protocol = req.headers["x-forwarded-proto"] || req.protocol;
+    const host = req.get("host");
+    if (host) return `${protocol}://${host}`;
+  }
+  return "http://localhost:5000";
 }
 
-async function fetchGoogleProfile(code) {
+async function fetchGoogleProfile(code, req) {
   const params = new URLSearchParams({
     code,
     client_id: process.env.GOOGLE_CLIENT_ID,
     client_secret: process.env.GOOGLE_CLIENT_SECRET,
-    redirect_uri: `${getRedirectBaseUrl()}/api/users/auth/google/callback`,
+    redirect_uri: `${getRedirectBaseUrl(req)}/api/users/auth/google/callback`,
     grant_type: "authorization_code",
   });
 
@@ -239,7 +246,7 @@ export const getUserProfile = asyncHandler(async (req, res) => {
 export const googleAuth = (req, res) => {
   const params = new URLSearchParams({
     client_id: process.env.GOOGLE_CLIENT_ID,
-    redirect_uri: `${getRedirectBaseUrl()}/api/users/auth/google/callback`,
+    redirect_uri: `${getRedirectBaseUrl(req)}/api/users/auth/google/callback`,
     response_type: "code",
     scope: "openid email profile",
     access_type: "offline",
@@ -258,7 +265,7 @@ export const googleCallback = asyncHandler(async (req, res) => {
   }
 
   try {
-    const profile = await fetchGoogleProfile(code);
+    const profile = await fetchGoogleProfile(code, req);
     const { id: googleId, email, name, picture } = profile;
 
     if (!email) {
