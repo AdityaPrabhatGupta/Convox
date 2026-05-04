@@ -1,0 +1,1006 @@
+/* ================================================================
+   CONVOX — CLARITY POLISH LAYER  v4.0
+   ================================================================
+   Corrects over-styling. Replaces fog/blur with solid surfaces,
+   clean borders, and high contrast. Imported LAST in main.jsx.
+   ================================================================ */
+
+/* ──────────────────────────────────────────────────────────────
+   § 0  CORRECTED DESIGN TOKENS
+   ────────────────────────────────────────────────────────────── */
+:root {
+  /* Surfaces — solid, not transparent */
+  --px-white:         #ffffff;
+  --px-bg:            #f9fafb;
+  --px-bg-sidebar:    #f8f7fc;
+  --px-bg-chat:       #f4f3f9;
+  --px-bg-header:     #ffffff;
+  --px-bg-input:      #ffffff;
+
+  /* Accent — clear, saturated */
+  --px-indigo:        #6366f1;
+  --px-violet:        #8b5cf6;
+  --px-pink:          #ec4899;
+
+  /* Borders — visible but not heavy */
+  --px-border:        #e5e7eb;
+  --px-border-accent: rgba(99, 102, 241, 0.22);
+
+  /* Text — high contrast */
+  --px-text-1:        #111827;
+  --px-text-2:        #4b5563;
+  --px-text-3:        #9ca3af;
+
+  /* Radii */
+  --px-r-sm:   10px;
+  --px-r-md:   14px;
+  --px-r-lg:   18px;
+  --px-r-xl:   22px;
+  --px-r-2xl:  26px;
+
+  /* Shadows — clean, not foggy */
+  --px-sh-xs:    0 1px 2px rgba(0,0,0,0.05);
+  --px-sh-sm:    0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04);
+  --px-sh-md:    0 4px 12px rgba(0,0,0,0.08);
+  --px-sh-lg:    0 8px 24px rgba(0,0,0,0.10);
+  --px-sh-focus: 0 0 0 3px rgba(99, 102, 241, 0.18);
+
+  /* Motion — fast, subtle */
+  --px-ease:   cubic-bezier(0.22, 1, 0.36, 1);
+  --px-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --px-t-fast: 0.12s;
+  --px-t-norm: 0.18s;
+}
+
+/* ──────────────────────────────────────────────────────────────
+   § 1  BODY — CLEAN BACKGROUND
+   ────────────────────────────────────────────────────────────── */
+body {
+  background: var(--px-bg) !important;
+}
+
+/* ──────────────────────────────────────────────────────────────
+   § 2  SIDEBAR — SOLID + STRUCTURED
+   ────────────────────────────────────────────────────────────── */
+.sidebar {
+  background: var(--px-bg-sidebar) !important;
+  border-right: 1px solid var(--px-border) !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+.sidebar__header {
+  background: var(--px-white) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border-bottom: 1px solid var(--px-border) !important;
+}
+
+.sidebar__brand {
+  background: linear-gradient(135deg, var(--px-indigo), var(--px-violet));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.sidebar__subtitle,
+.sidebar__section-label {
+  color: var(--px-text-3) !important;
+  letter-spacing: 0.12em !important;
+}
+
+.sidebar__icon-btn {
+  background: var(--px-white) !important;
+  border: 1px solid var(--px-border) !important;
+  border-radius: var(--px-r-sm) !important;
+  box-shadow: var(--px-sh-xs) !important;
+  transition: all var(--px-t-fast) ease !important;
+}
+.sidebar__icon-btn:hover {
+  background: #f3f4f6 !important;
+  color: var(--px-indigo) !important;
+  transform: scale(1.04) !important;
+  box-shadow: var(--px-sh-sm) !important;
+}
+
+/* New chat button */
+.sidebar__new-btn {
+  background: linear-gradient(135deg, var(--px-indigo), var(--px-violet)) !important;
+  border-radius: var(--px-r-md) !important;
+  box-shadow: 0 4px 12px rgba(99,102,241,0.25) !important;
+  font-weight: 600 !important;
+  transition: all var(--px-t-norm) ease !important;
+}
+.sidebar__new-btn:hover {
+  transform: translateY(-1px) !important;
+  box-shadow: 0 6px 16px rgba(99,102,241,0.32) !important;
+}
+.sidebar__new-btn:active {
+  transform: scale(0.98) !important;
+}
+
+/* Search */
+.sidebar__search {
+  background: var(--px-white) !important;
+  border: 1px solid var(--px-border) !important;
+  border-radius: var(--px-r-md) !important;
+  box-shadow: inset 0 1px 2px rgba(0,0,0,0.04) !important;
+  transition: all var(--px-t-norm) ease !important;
+}
+.sidebar__search:focus {
+  border-color: var(--px-indigo) !important;
+  box-shadow: var(--px-sh-focus) !important;
+  background: var(--px-white) !important;
+}
+
+/* Chat items */
+.chat-item {
+  border-radius: var(--px-r-md) !important;
+  transition: all var(--px-t-fast) ease !important;
+}
+.chat-item:hover {
+  background: rgba(99,102,241,0.05) !important;
+  transform: translateX(1px) !important;
+}
+.chat-item--active {
+  background: rgba(99,102,241,0.08) !important;
+  border-color: rgba(99,102,241,0.18) !important;
+  box-shadow: var(--px-sh-xs) !important;
+}
+.chat-item--active::before {
+  background: linear-gradient(180deg, var(--px-indigo), var(--px-violet)) !important;
+  width: 3px !important;
+  border-radius: 0 3px 3px 0 !important;
+}
+.chat-item--active .chat-item__name {
+  color: var(--px-indigo) !important;
+  font-weight: 600 !important;
+}
+
+.chat-item__name {
+  color: var(--px-text-1) !important;
+}
+.chat-item__preview {
+  color: var(--px-text-2) !important;
+}
+.chat-item__time {
+  color: var(--px-text-3) !important;
+}
+
+/* Avatar */
+.chat-item__avatar {
+  box-shadow: var(--px-sh-xs) !important;
+  transition: transform var(--px-t-fast) ease !important;
+}
+.chat-item:hover .chat-item__avatar {
+  transform: scale(1.03) !important;
+}
+
+/* Status dot — clean, no excessive glow */
+.chat-item__status-dot {
+  box-shadow: 0 0 0 2px var(--px-white) !important;
+}
+.status-dot--online {
+  background: #22c55e !important;
+  box-shadow: 0 0 0 2px #ffffff !important;
+  animation: none !important;
+}
+
+/* Unread badge */
+.chat-item__badge {
+  background: linear-gradient(135deg, var(--px-indigo), var(--px-violet)) !important;
+  box-shadow: 0 1px 4px rgba(99,102,241,0.25) !important;
+}
+
+/* Footer — solid */
+.sidebar__footer {
+  background: var(--px-white) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border-top: 1px solid var(--px-border) !important;
+}
+.sidebar__footer-name {
+  color: var(--px-text-1) !important;
+}
+.sidebar__footer-status {
+  color: var(--px-text-3) !important;
+}
+
+/* ──────────────────────────────────────────────────────────────
+   § 3  CHAT WINDOW — CLEAN CANVAS
+   ────────────────────────────────────────────────────────────── */
+.chat-window {
+  background: var(--px-bg-chat) !important;
+}
+
+.messages-area {
+  background: transparent !important;
+}
+
+/* § 4 — Header styles are now set directly in ChatWindow.css (no override needed) */
+
+/* ──────────────────────────────────────────────────────────────
+   § 5  MESSAGES — CRISP + READABLE
+   ────────────────────────────────────────────────────────────── */
+
+/* Message entrance — subtle */
+.msg-row {
+  animation: px-msg-enter 0.22s ease both !important;
+}
+
+@keyframes px-msg-enter {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Bubble base */
+.msg-bubble {
+  border-radius: var(--px-r-xl) !important;
+  box-shadow: var(--px-sh-xs) !important;
+  transition: transform var(--px-t-fast) ease,
+              box-shadow var(--px-t-fast) ease !important;
+}
+.msg-bubble:hover {
+  transform: translateY(-1px) !important;
+  box-shadow: var(--px-sh-sm) !important;
+}
+
+/* Received — solid white, clean border */
+.msg-bubble--other {
+  background: var(--px-white) !important;
+  border: 1px solid var(--px-border) !important;
+  color: var(--px-text-1) !important;
+  box-shadow: var(--px-sh-xs) !important;
+}
+.msg-bubble--other::before {
+  background: var(--px-indigo) !important;
+  opacity: 0.4 !important;
+  width: 2.5px !important;
+}
+
+/* Sent — gradient, saturated */
+.msg-bubble--mine {
+  background: linear-gradient(135deg, #5b5df0 0%, #7c5cf6 50%, #9467f8 100%) !important;
+  color: #fff !important;
+  box-shadow: 0 2px 8px rgba(99,102,241,0.22) !important;
+}
+.msg-bubble--mine:hover {
+  box-shadow: 0 4px 14px rgba(99,102,241,0.30) !important;
+}
+
+/* Avatar */
+.msg-avatar {
+  box-shadow: var(--px-sh-xs) !important;
+  border: 1.5px solid var(--px-border) !important;
+}
+
+/* Sender name */
+.msg-sender {
+  color: var(--px-text-2) !important;
+  font-weight: 600 !important;
+}
+
+/* Timestamp */
+.msg-time {
+  color: var(--px-text-3) !important;
+}
+
+/* Date divider */
+.date-divider__text {
+  background: var(--px-white) !important;
+  border: 1px solid var(--px-border) !important;
+  color: var(--px-text-3) !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.03em !important;
+}
+.date-divider::before,
+.date-divider::after {
+  background: var(--px-border) !important;
+}
+
+/* Reactions */
+.msg-reaction-pill {
+  border: 1px solid var(--px-border) !important;
+  background: var(--px-white) !important;
+  border-radius: var(--px-r-sm) !important;
+  box-shadow: var(--px-sh-xs) !important;
+  transition: all var(--px-t-fast) var(--px-spring) !important;
+}
+.msg-reaction-pill:hover {
+  transform: scale(1.08) !important;
+  background: #f3f4f6 !important;
+  box-shadow: var(--px-sh-sm) !important;
+}
+.msg-reaction-pill__count {
+  color: var(--px-text-2) !important;
+}
+
+/* Typing indicator */
+.typing-indicator {
+  background: var(--px-white) !important;
+  border: 1px solid var(--px-border) !important;
+  box-shadow: var(--px-sh-xs) !important;
+  border-radius: var(--px-r-lg) !important;
+}
+.typing-dot {
+  background: linear-gradient(135deg, var(--px-indigo), var(--px-violet)) !important;
+}
+
+/* ──────────────────────────────────────────────────────────────
+   § 6  INPUT BAR — SOLID ACTION ZONE
+   ────────────────────────────────────────────────────────────── */
+.input-area {
+  background: var(--px-bg-input) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border-top: 1px solid var(--px-border) !important;
+  box-shadow: 0 -1px 3px rgba(0,0,0,0.03) !important;
+}
+
+.input-glass {
+  background: var(--px-white) !important;
+  border: 1.5px solid var(--px-border) !important;
+  border-radius: var(--px-r-xl) !important;
+  box-shadow: inset 0 1px 2px rgba(0,0,0,0.04) !important;
+  transition: all var(--px-t-norm) ease !important;
+}
+.input-glass:focus-within {
+  border-color: var(--px-indigo) !important;
+  box-shadow: var(--px-sh-focus) !important;
+}
+
+.input-glass__field {
+  color: var(--px-text-1) !important;
+  caret-color: var(--px-indigo) !important;
+}
+.input-glass__field::placeholder {
+  color: var(--px-text-3) !important;
+}
+
+/* Send button */
+.send-btn {
+  background: linear-gradient(135deg, var(--px-indigo), var(--px-violet)) !important;
+  border-radius: var(--px-r-md) !important;
+  box-shadow: 0 2px 8px rgba(99,102,241,0.25) !important;
+  transition: all var(--px-t-fast) ease !important;
+}
+.send-btn:hover:not(:disabled) {
+  transform: scale(1.04) translateY(-1px) !important;
+  box-shadow: 0 4px 12px rgba(99,102,241,0.32) !important;
+}
+.send-btn:active:not(:disabled) {
+  transform: scale(0.96) !important;
+}
+.send-btn:disabled {
+  background: #e5e7eb !important;
+  color: #9ca3af !important;
+  box-shadow: none !important;
+  opacity: 1 !important;
+}
+
+/* Icon buttons */
+.input-icon-btn {
+  border-radius: var(--px-r-sm) !important;
+  transition: all var(--px-t-fast) ease !important;
+}
+.input-icon-btn:hover:not(:disabled) {
+  background: #f3f4f6 !important;
+  color: var(--px-indigo) !important;
+  transform: scale(1.06) !important;
+}
+
+/* ──────────────────────────────────────────────────────────────
+   § 7  MODALS & OVERLAYS — CLEAN, NOT FOGGY
+   ────────────────────────────────────────────────────────────── */
+.cx-overlay-backdrop {
+  background: rgba(0,0,0,0.40) !important;
+  backdrop-filter: blur(6px) !important;
+  -webkit-backdrop-filter: blur(6px) !important;
+}
+
+.cx-overlay-shell {
+  background: var(--px-white) !important;
+  border: 1px solid var(--px-border) !important;
+  border-radius: var(--px-r-2xl) !important;
+  box-shadow: var(--px-sh-lg) !important;
+}
+
+.modal-backdrop {
+  background: rgba(0,0,0,0.35) !important;
+  backdrop-filter: blur(4px) !important;
+  -webkit-backdrop-filter: blur(4px) !important;
+}
+
+/* Context menu */
+.ctx-menu {
+  background: var(--px-white) !important;
+  border: 1px solid var(--px-border) !important;
+  border-radius: var(--px-r-lg) !important;
+  box-shadow: var(--px-sh-lg) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+.ctx-item {
+  border-radius: var(--px-r-sm) !important;
+  color: var(--px-text-1) !important;
+  transition: all var(--px-t-fast) ease !important;
+}
+.ctx-item:hover {
+  background: #f3f4f6 !important;
+  color: var(--px-indigo) !important;
+}
+
+/* Header dropdown */
+.chat-header__menu {
+  background: var(--px-white) !important;
+  border: 1px solid var(--px-border) !important;
+  border-radius: var(--px-r-lg) !important;
+  box-shadow: var(--px-sh-lg) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+.chat-header__menu-item {
+  border-radius: var(--px-r-sm) !important;
+  color: var(--px-text-1) !important;
+}
+.chat-header__menu-item:hover:not(:disabled) {
+  background: #f3f4f6 !important;
+  color: var(--px-indigo) !important;
+}
+
+/* Relationship modal */
+.relationship-modal__backdrop {
+  background: rgba(0,0,0,0.35) !important;
+  backdrop-filter: blur(4px) !important;
+  -webkit-backdrop-filter: blur(4px) !important;
+}
+.relationship-modal {
+  background: var(--px-white) !important;
+  border: 1px solid var(--px-border) !important;
+  border-radius: var(--px-r-2xl) !important;
+  box-shadow: var(--px-sh-lg) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+.relationship-modal__title {
+  color: var(--px-text-1) !important;
+}
+.relationship-modal__description {
+  color: var(--px-text-2) !important;
+}
+.relationship-modal__option {
+  border-radius: var(--px-r-md) !important;
+  background: #f3f4f6 !important;
+  color: var(--px-text-1) !important;
+  transition: all var(--px-t-fast) ease !important;
+}
+.relationship-modal__option:hover {
+  background: #eef2ff !important;
+}
+.relationship-modal__confirm {
+  background: linear-gradient(135deg, var(--px-indigo), var(--px-violet)) !important;
+  box-shadow: 0 4px 12px rgba(99,102,241,0.25) !important;
+  border-radius: var(--px-r-md) !important;
+}
+.relationship-modal__cancel {
+  border: 1px solid var(--px-border) !important;
+  border-radius: var(--px-r-md) !important;
+  color: var(--px-text-1) !important;
+}
+
+/* Emoji popover */
+.message-emoji-popover {
+  background: var(--px-white) !important;
+  border: 1px solid var(--px-border) !important;
+  border-radius: var(--px-r-xl) !important;
+  box-shadow: var(--px-sh-lg) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+/* ──────────────────────────────────────────────────────────────
+   § 8  EMPTY STATE
+   ────────────────────────────────────────────────────────────── */
+.empty-state {
+  background: transparent !important;
+}
+.empty-state__icon-wrap {
+  background: #eef2ff !important;
+  border: 1px solid rgba(99,102,241,0.15) !important;
+  box-shadow: var(--px-sh-sm) !important;
+  border-radius: var(--px-r-xl) !important;
+  transition: all var(--px-t-norm) ease !important;
+}
+.empty-state__icon-wrap:hover {
+  transform: scale(1.06) translateY(-2px) !important;
+  box-shadow: var(--px-sh-md) !important;
+}
+.empty-state__icon {
+  color: var(--px-indigo) !important;
+}
+.empty-state__title {
+  background: linear-gradient(135deg, #4338ca, var(--px-indigo), var(--px-violet));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.empty-state__subtitle {
+  color: var(--px-text-2) !important;
+}
+
+/* ──────────────────────────────────────────────────────────────
+   § 9  SCROLLBAR
+   ────────────────────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 5px !important; }
+::-webkit-scrollbar-thumb {
+  background: #d1d5db !important;
+  border-radius: 10px !important;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #9ca3af !important;
+}
+
+/* ──────────────────────────────────────────────────────────────
+   § 10  SELECT TOOLBAR
+   ────────────────────────────────────────────────────────────── */
+.select-toolbar {
+  background: linear-gradient(135deg, var(--px-indigo), var(--px-violet)) !important;
+  box-shadow: 0 2px 8px rgba(99,102,241,0.20) !important;
+}
+.msg-row--selected {
+  background: rgba(99,102,241,0.06) !important;
+}
+.msg-checkbox--checked {
+  background: linear-gradient(135deg, var(--px-indigo), var(--px-violet)) !important;
+  border-color: transparent !important;
+}
+
+/* ──────────────────────────────────────────────────────────────
+   § 11  PROFILE MODAL — PREMIUM OVERRIDE
+   ────────────────────────────────────────────────────────────── */
+.profile-modal__backdrop {
+  background: rgba(10,6,30,0.45) !important;
+  backdrop-filter: blur(14px) !important;
+  -webkit-backdrop-filter: blur(14px) !important;
+}
+.profile-modal {
+  background:
+    radial-gradient(ellipse 70% 50% at 10% 0%, rgba(139,92,246,0.10), transparent 50%),
+    radial-gradient(ellipse 60% 40% at 90% 100%, rgba(236,72,153,0.06), transparent 50%),
+    rgba(255,255,255,0.94) !important;
+  border: 1px solid rgba(255,255,255,0.6) !important;
+  border-radius: 28px !important;
+  box-shadow:
+    0 40px 100px rgba(139,92,246,0.16),
+    0 16px 40px rgba(236,72,153,0.06),
+    inset 0 1px 0 rgba(255,255,255,0.9) !important;
+  backdrop-filter: blur(40px) saturate(1.8) !important;
+  -webkit-backdrop-filter: blur(40px) saturate(1.8) !important;
+}
+.profile-modal__header {
+  background:
+    linear-gradient(135deg, rgba(139,92,246,0.14) 0%, rgba(236,72,153,0.08) 40%, rgba(6,182,212,0.06) 100%) !important;
+  border-bottom: 1px solid rgba(139,92,246,0.12) !important;
+  backdrop-filter: blur(20px) saturate(1.6) !important;
+  -webkit-backdrop-filter: blur(20px) saturate(1.6) !important;
+}
+.profile-modal__title {
+  background: linear-gradient(135deg, #1e1b4b, #7c3aed) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  background-clip: text !important;
+  color: transparent !important;
+}
+.profile-modal__close {
+  border: 1px solid rgba(139,92,246,0.12) !important;
+  background: rgba(255,255,255,0.7) !important;
+  border-radius: 12px !important;
+  backdrop-filter: blur(10px) !important;
+}
+.profile-modal__close:hover {
+  background: linear-gradient(135deg, rgba(139,92,246,0.15), rgba(236,72,153,0.1)) !important;
+  color: #7c3aed !important;
+  transform: rotate(90deg) scale(1.1) !important;
+}
+.profile-modal__avatar-row {
+  background: transparent !important;
+  border: none !important;
+  border-radius: 0 !important;
+}
+.profile-modal__avatar {
+  border: 3px solid transparent !important;
+  box-shadow:
+    0 0 0 3px rgba(139,92,246,0.2),
+    0 12px 36px rgba(139,92,246,0.22),
+    0 4px 12px rgba(236,72,153,0.1) !important;
+}
+.profile-modal__ghost-btn {
+  border: 1.5px solid rgba(139,92,246,0.2) !important;
+  color: #7c3aed !important;
+  border-radius: 12px !important;
+  background: rgba(255,255,255,0.7) !important;
+  backdrop-filter: blur(8px) !important;
+}
+.profile-modal__input,
+.profile-modal__textarea {
+  border: 2px solid rgba(139,92,246,0.22) !important;
+  border-radius: 16px !important;
+  background:
+    linear-gradient(135deg, #f0e7ff 0%, #e8eeff 50%, #f5eeff 100%) !important;
+  box-shadow:
+    inset 0 2px 8px rgba(139,92,246,0.08),
+    0 4px 12px rgba(139,92,246,0.06),
+    inset 0 -1px 0 rgba(255,255,255,0.8) !important;
+}
+.profile-modal__input:focus,
+.profile-modal__textarea:focus {
+  border-color: #8b5cf6 !important;
+  background: rgba(255,255,255,0.98) !important;
+  box-shadow:
+    inset 0 2px 6px rgba(139,92,246,0.05),
+    0 0 0 5px rgba(139,92,246,0.12),
+    0 10px 28px rgba(139,92,246,0.12) !important;
+  transform: translateY(-2px) !important;
+}
+.profile-modal__save-btn {
+  background: linear-gradient(135deg, #7c3aed 0%, #a855f7 35%, #ec4899 70%, #06b6d4 100%) !important;
+  border-radius: 14px !important;
+  box-shadow:
+    0 12px 32px rgba(139,92,246,0.3),
+    0 4px 12px rgba(236,72,153,0.12) !important;
+}
+.profile-modal__cancel-btn {
+  border: 1.5px solid rgba(139,92,246,0.15) !important;
+  border-radius: 14px !important;
+  background: rgba(255,255,255,0.8) !important;
+}
+
+/* ──────────────────────────────────────────────────────────────
+   § 12  REQUESTS DRAWER
+   ────────────────────────────────────────────────────────────── */
+.rb__trigger {
+  border: 1px solid var(--px-border) !important;
+  background: var(--px-white) !important;
+  border-radius: var(--px-r-sm) !important;
+}
+.rb__trigger:hover {
+  background: #f3f4f6 !important;
+  color: var(--px-indigo) !important;
+}
+.rb__trigger--open {
+  border-color: var(--px-border-accent) !important;
+  box-shadow: var(--px-sh-focus) !important;
+}
+.rb__badge {
+  background: linear-gradient(135deg, var(--px-indigo), var(--px-violet)) !important;
+  box-shadow: 0 1px 4px rgba(99,102,241,0.25) !important;
+}
+.rb__ring {
+  border-color: var(--px-indigo) !important;
+}
+.rb__dropdown {
+  background: var(--px-white) !important;
+  border: 1px solid var(--px-border) !important;
+  border-radius: var(--px-r-xl) !important;
+  box-shadow: var(--px-sh-lg) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+.rb__tab--active {
+  color: var(--px-indigo) !important;
+}
+.rb__tab-line {
+  background: var(--px-indigo) !important;
+}
+.rb__accept-btn {
+  background: linear-gradient(135deg, var(--px-indigo), var(--px-violet)) !important;
+  box-shadow: 0 2px 8px rgba(99,102,241,0.20) !important;
+  border-radius: var(--px-r-sm) !important;
+}
+
+/* ──────────────────────────────────────────────────────────────
+   § 13  VOICE / EDIT / FORWARD
+   ────────────────────────────────────────────────────────────── */
+.recording-bar {
+  border: 1px solid rgba(239,68,68,0.18) !important;
+  border-radius: var(--px-r-xl) !important;
+  background: rgba(239,68,68,0.04) !important;
+}
+.rec-send {
+  background: linear-gradient(135deg, var(--px-indigo), var(--px-violet)) !important;
+  border-radius: var(--px-r-lg) !important;
+}
+.message-edit-box {
+  border-radius: var(--px-r-lg) !important;
+  background: #fafafa !important;
+  border: 1px solid var(--px-border) !important;
+}
+.message-edit-box__field {
+  border: 1px solid var(--px-border) !important;
+  border-radius: var(--px-r-md) !important;
+}
+.message-edit-box__field:focus {
+  border-color: var(--px-indigo) !important;
+  box-shadow: var(--px-sh-focus) !important;
+}
+.forward-modal__item {
+  border-radius: var(--px-r-md) !important;
+  background: #f3f4f6 !important;
+}
+.forward-modal__item:hover {
+  background: #eef2ff !important;
+}
+.msg-pinned-tag {
+  background: rgba(99,102,241,0.08) !important;
+  color: var(--px-indigo) !important;
+  border-radius: var(--px-r-sm) !important;
+}
+.msg-edited-tag {
+  color: var(--px-text-3) !important;
+}
+
+/* ──────────────────────────────────────────────────────────────
+   § 14  MOBILE BACK BUTTON
+   ────────────────────────────────────────────────────────────── */
+.chat-header__back {
+  display: none;
+  width: 34px;
+  height: 34px;
+  border-radius: var(--px-r-sm);
+  border: 1px solid var(--px-border);
+  background: var(--px-white);
+  color: var(--px-text-1);
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all var(--px-t-fast) ease;
+  margin-right: 2px;
+}
+.chat-header__back:hover {
+  background: #f3f4f6;
+  color: var(--px-indigo);
+}
+
+/* ──────────────────────────────────────────────────────────────
+   § 15  BLUR OVERRIDE — KILL ALL FOG
+   ────────────────────────────────────────────────────────────── */
+
+/* Sidebar shell + header + footer */
+.sidebar,
+.sidebar__header,
+.sidebar__footer {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+/* Chat header + dropdown */
+.chat-header,
+.chat-header__menu-btn,
+.chat-header__menu {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+/* Input area */
+.input-area {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+/* Emoji popover */
+.message-emoji-popover {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+/* Reaction panel */
+.msg-reaction-panel {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  background: #ffffff !important;
+  border: 1px solid var(--px-border) !important;
+  box-shadow: var(--px-sh-lg) !important;
+}
+
+/* Context menu */
+.ctx-menu {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+/* Relationship modal */
+.relationship-modal__backdrop {
+  backdrop-filter: blur(4px) !important;
+  -webkit-backdrop-filter: blur(4px) !important;
+}
+.relationship-modal {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+/* Profile modal — allow premium glassmorphism */
+.profile-modal__backdrop {
+  backdrop-filter: blur(14px) !important;
+  -webkit-backdrop-filter: blur(14px) !important;
+}
+.profile-modal {
+  backdrop-filter: blur(40px) saturate(1.8) !important;
+  -webkit-backdrop-filter: blur(40px) saturate(1.8) !important;
+}
+
+/* Requests drawer dropdown */
+.rb__dropdown {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+/* Override theme.css overly-bright msg bubble shadows */
+.msg-bubble--other {
+  box-shadow: var(--px-sh-xs) !important;
+}
+.msg-bubble--mine {
+  border-bottom-right-radius: 6px !important;
+}
+.msg-bubble--other {
+  border-bottom-left-radius: 6px !important;
+}
+
+/* Override theme.css chat-window background */
+.chat-window {
+  background: var(--px-bg-chat) !important;
+}
+
+/* ──────────────────────────────────────────────────────────────
+   § 16  ACCESSIBILITY
+   ────────────────────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ──────────────────────────────────────────────────────────────
+   § 17  RESPONSIVE
+   ────────────────────────────────────────────────────────────── */
+@media (max-width: 860px) {
+  .sidebar {
+    width: 100% !important;
+    max-width: 100% !important;
+    height: 100dvh !important;
+    border-right: none !important;
+  }
+  .chat-window {
+    width: 100% !important;
+    height: 100dvh !important;
+  }
+  .chat-page--chat-open .sidebar {
+    display: none !important;
+  }
+  .chat-page--chat-open .chat-window {
+    display: flex !important;
+  }
+  .chat-page:not(.chat-page--chat-open) .chat-window {
+    display: none !important;
+  }
+  .chat-header__back {
+    display: flex !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .sidebar__header {
+    padding: 16px 12px 10px !important;
+  }
+  .sidebar__brand {
+    font-size: 22px !important;
+  }
+  .sidebar__list {
+    padding: 4px 6px 14px !important;
+  }
+  .chat-item {
+    padding: 10px 10px !important;
+    gap: 10px !important;
+  }
+  .chat-item__avatar {
+    width: 38px !important;
+    height: 38px !important;
+  }
+  .chat-header {
+    padding: 10px 14px !important;
+    gap: 10px !important;
+  }
+  .chat-header__avatar {
+    width: 34px !important;
+    height: 34px !important;
+  }
+  .chat-header__name {
+    font-size: 14px !important;
+  }
+  .messages-area {
+    padding: 14px 12px 8px !important;
+    gap: 10px !important;
+  }
+  .msg-group {
+    max-width: min(82%, 500px) !important;
+  }
+  .msg-bubble {
+    padding: 10px 13px !important;
+    font-size: 13.5px !important;
+    border-radius: var(--px-r-lg) !important;
+  }
+  .input-area {
+    padding: 10px 12px 14px !important;
+  }
+  .input-glass {
+    padding: 4px 4px 4px 14px !important;
+    border-radius: var(--px-r-lg) !important;
+    gap: 6px !important;
+  }
+  .send-btn {
+    width: 36px !important;
+    height: 36px !important;
+    border-radius: 12px !important;
+  }
+  .input-icon-btn {
+    width: 32px !important;
+    height: 32px !important;
+  }
+  .message-emoji-popover {
+    width: calc(100vw - 16px) !important;
+    left: 8px !important;
+    right: 8px !important;
+    border-radius: var(--px-r-lg) !important;
+  }
+  .ctx-menu {
+    width: calc(100vw - 24px) !important;
+    max-width: 280px !important;
+  }
+  .relationship-modal {
+    width: calc(100vw - 24px) !important;
+    padding: 18px !important;
+    border-radius: var(--px-r-xl) !important;
+  }
+  .profile-modal {
+    width: calc(100vw - 16px) !important;
+    border-radius: var(--px-r-xl) !important;
+  }
+  .cx-overlay-shell {
+    width: calc(100vw - 16px) !important;
+    border-radius: var(--px-r-xl) !important;
+  }
+  .empty-state {
+    padding: 32px 24px !important;
+  }
+  .empty-state__title {
+    font-size: 22px !important;
+  }
+  .rb__dropdown {
+    width: calc(100vw - 16px) !important;
+    max-width: none !important;
+    left: 8px !important;
+    right: 8px !important;
+    border-radius: var(--px-r-lg) !important;
+  }
+}
+
+@media (max-height: 500px) {
+  .sidebar__header { padding: 10px 12px 8px !important; }
+  .sidebar__new-btn { padding: 8px 12px !important; margin-bottom: 8px !important; }
+  .chat-header { padding: 8px 14px !important; }
+  .messages-area { padding: 10px 12px 6px !important; gap: 8px !important; }
+  .input-area { padding: 8px 12px 10px !important; }
+}
+
+/* ──────────────────────────────────────────────────────────────
+   § 18  PRINT
+   ────────────────────────────────────────────────────────────── */
+@media print {
+  .sidebar, .input-area, .chat-header__actions, .chat-header__back { display: none !important; }
+  .chat-window { background: #fff !important; }
+  .msg-bubble { box-shadow: none !important; border: 1px solid #ddd !important; }
+  .msg-bubble--mine { background: #f3f4f6 !important; color: #111 !important; }
+}

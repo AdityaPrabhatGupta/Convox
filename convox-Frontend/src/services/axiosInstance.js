@@ -1,14 +1,18 @@
 import axios from "axios";
-import { getToken } from "../utils/auth.js";
+import { getToken, logout, refreshAccessToken } from "../utils/auth.js";
 
-const apiBaseUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
+const rawApiBaseUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
+const apiBaseUrl = rawApiBaseUrl.replace(/\/+$/, "").replace(/\/api$/, "");
 
 const axiosInstance = axios.create({
   baseURL: apiBaseUrl,
+  withCredentials: true,
   headers: {
     "Content-Type": "application/json",
   },
 });
+
+let refreshPromise = null;
 
 // Request Interceptor
 // Runs BEFORE every request is sent
@@ -29,14 +33,33 @@ axiosInstance.interceptors.request.use(
 // Runs AFTER every response arrives
 axiosInstance.interceptors.response.use(
   (response) => response,
-  (error) => {
+  async (error) => {
     const requestUrl = error.config?.url || "";
+    const originalRequest = error.config || {};
     const isAuthRequest =
       requestUrl.includes("/api/users/login") ||
-      requestUrl.includes("/api/users/register");
+      requestUrl.includes("/api/users/register") ||
+      requestUrl.includes("/api/users/refresh");
+
+    if (error.response?.status === 401 && !isAuthRequest && !originalRequest._retry) {
+      originalRequest._retry = true;
+      refreshPromise ||= refreshAccessToken().finally(() => {
+        refreshPromise = null;
+      });
+
+      const refreshed = await refreshPromise;
+      if (refreshed) {
+        const nextToken = getToken();
+        if (nextToken) {
+          originalRequest.headers = originalRequest.headers || {};
+          originalRequest.headers.Authorization = `Bearer ${nextToken}`;
+        }
+        return axiosInstance(originalRequest);
+      }
+    }
 
     if (error.response?.status === 401 && !isAuthRequest) {
-      localStorage.removeItem("token");
+      logout();
       window.location.href = "/login";
     }
 

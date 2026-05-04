@@ -1,0 +1,8 @@
+.call-btn {
+  color: inherit;
+  transition: color 0.15s, background 0.15s;
+}
+
+.call-btn:hover {
+  color: #7c3aed;
+}

@@ -14,7 +14,7 @@ const userSchema = new Schema(
         email: {
             type: String,
             required: [true, 'Email is required.'],
-            unique: true,   
+            unique: true,
             lowercase: true,
             trim: true,
             match: [
@@ -25,29 +25,81 @@ const userSchema = new Schema(
 
         password: {
             type: String,
-            required: [true, 'Password is required.'],
+            required: false,    // null for Google-only accounts
             minlength: [8, 'Password must be at least 8 characters.'],
             select: false,
+        },
+
+        googleId: {
+            type: String,
+            default: null,
+            unique: true,
+            sparse: true,       // allows multiple nulls while enforcing uniqueness on real IDs
         },
 
         profilePic: {
             type: String,
             default: null,
         },
+
+        bio: {
+            type: String,
+            trim: true,
+            maxlength: [30, 'Bio cannot exceed 30 characters.'],
+            default: '',
+        },
+
+        lastSeen: {
+            type: Date,
+            default: null,
+        },
+
+        blockedUsers: [
+            {
+                type: Schema.Types.ObjectId,
+                ref: 'User',
+            },
+        ],
+
+        removedUsers: [
+            {
+                type: Schema.Types.ObjectId,
+                ref: 'User',
+            },
+        ],
+
+        isBot: {
+            type: Boolean,
+            default: false,
+        },
+
+        refreshTokenHash: {
+            type: String,
+            default: null,
+            select: false,
+        },
+
+        refreshTokenExpiresAt: {
+            type: Date,
+            default: null,
+            select: false,
+        },
     },
     { timestamps: true }
 );
 
+// Only hash password when it is present and modified
 userSchema.pre('save', async function () {
-    if (!this.isModified('password')) return;
+    if (!this.password || !this.isModified('password')) return;
     this.password = await bcrypt.hash(this.password, 12);
 });
 
 userSchema.methods.comparePassword = function (candidatePassword) {
+    if (!this.password) return Promise.resolve(false);
     return bcrypt.compare(candidatePassword, this.password);
 };
 
-userSchema.index({ name: "text", email: "text" });
+userSchema.index({ name: 'text', email: 'text' });
 
 const User = model('User', userSchema);
 

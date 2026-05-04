@@ -1,9 +1,13 @@
 const isBrowser = typeof window !== "undefined";
+const rawApiBaseUrl =
+  import.meta.env.VITE_API_URL || (isBrowser ? window.location.origin : "http://localhost:5000");
+const apiBaseUrl = rawApiBaseUrl.replace(/\/+$/, "").replace(/\/api$/, "");
 
 const clearStoredAuth = () => {
   if (!isBrowser) return;
   localStorage.removeItem("token");
   localStorage.removeItem("user");
+  localStorage.removeItem("convox_user");
 };
 
 const decodeJwtPayload = (token) => {
@@ -50,9 +54,60 @@ export const getCurrentUserId = () => {
   return payload?.id != null ? String(payload.id) : null;
 };
 
+export const getCurrentUserName = () => {
+  const token = getToken();
+  if (!token) return null;
+
+  const payload = decodeJwtPayload(token);
+  const name = payload?.name;
+  return typeof name === "string" && name.trim() ? name.trim() : null;
+};
+
 export const saveToken = (token) => {
   if (!isBrowser) return;
   localStorage.setItem("token", token);
+};
+
+export const saveUser = (user) => {
+  if (!isBrowser || !user) return;
+  const serialized = JSON.stringify(user);
+  localStorage.setItem("user", serialized);
+  localStorage.setItem("convox_user", serialized);
+};
+
+export const refreshAccessToken = async () => {
+  if (!isBrowser) return false;
+
+  try {
+    const response = await fetch(`${apiBaseUrl}/api/users/refresh`, {
+      method: "POST",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (!response.ok) {
+      clearStoredAuth();
+      return false;
+    }
+
+    const payload = await response.json();
+    if (!payload?.token) {
+      clearStoredAuth();
+      return false;
+    }
+
+    saveToken(payload.token);
+    if (payload.data) {
+      saveUser(payload.data);
+    }
+
+    return true;
+  } catch {
+    clearStoredAuth();
+    return false;
+  }
 };
 
 export const logout = () => {

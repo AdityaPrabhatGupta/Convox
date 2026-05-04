@@ -1,11 +1,9 @@
-import jwt from 'jsonwebtoken';
+import { signAccessToken } from "./tokens.js";
 
-const generateToken = (userId) =>{
-    return jwt.sign(
-        {id: userId},
-        process.env.JWT_SECRET,
-        {expiresIn : process.env.JWT_EXPIRES_IN}
-    );
-};
+const generateToken = (userId, name) =>
+  signAccessToken({
+    _id: userId,
+    name,
+  });
 
 export default generateToken;

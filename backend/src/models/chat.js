@@ -44,6 +44,22 @@ const chatSchema = new Schema(
                 message: 'Group admin is required for group chats.',
             },
         },
+
+        isBotChat: {
+            type: Boolean,
+            default: false,
+        },
+
+        assistantQuotaCount: {
+            type: Number,
+            default: 0,
+            min: 0,
+        },
+
+        assistantQuotaResetAt: {
+            type: Date,
+            default: null,
+        },
     },
     { timestamps: true },
 );

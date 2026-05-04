@@ -1,0 +1,663 @@
+/* ================================================================
+   CONVOX — PREMIUM UI SYSTEM  v2.0
+   Single file. Drop into src/index.css or import in App.jsx.
+   Targets Tailwind classes visible in the app screenshot.
+   Zero layout/structure changes. Zero JSX required.
+   ================================================================ */
+
+/* ──────────────────────────────────────────────────────────────
+   § 0  DESIGN TOKENS
+   ────────────────────────────────────────────────────────────── */
+:root {
+  /* Palette */
+  --c-accent:        #7c5cfc;
+  --c-accent-2:      #a855f7;
+  --c-accent-soft:   #ede9ff;
+  --c-accent-glow:   rgba(124, 92, 252, 0.28);
+  --c-accent-faint:  rgba(124, 92, 252, 0.07);
+
+  /* Surfaces */
+  --c-page:          #f2f0fa;
+  --c-sidebar:       #faf9fd;
+  --c-chat-bg:       #f4f2f9;
+  --c-header-bg:     rgba(255, 255, 255, 0.78);
+  --c-input-bg:      rgba(255, 255, 255, 0.92);
+  --c-white:         #ffffff;
+
+  /* Borders */
+  --c-border:        rgba(120, 80, 220, 0.11);
+  --c-border-md:     rgba(120, 80, 220, 0.18);
+
+  /* Text */
+  --c-text:          #18122e;
+  --c-text-2:        #6b6490;
+  --c-text-3:        #a49ec4;
+
+  /* Status */
+  --c-green:         #22c55e;
+  --c-green-glow:    rgba(34, 197, 94, 0.42);
+
+  /* Radii */
+  --r-sm:   8px;
+  --r-md:  12px;
+  --r-lg:  16px;
+  --r-xl:  20px;
+  --r-2xl: 24px;
+
+  /* Shadows */
+  --sh-card:   0 2px 14px rgba(90, 60, 190, 0.08), 0 1px 3px rgba(0,0,0,0.04);
+  --sh-msg-out:0 4px 18px rgba(124, 92, 252, 0.32);
+  --sh-msg-in: 0 1px 6px rgba(0,0,0,0.06);
+  --sh-float:  0 8px 40px rgba(80, 50, 180, 0.15), 0 2px 8px rgba(0,0,0,0.05);
+
+  /* Easing */
+  --ease: cubic-bezier(0.4, 0, 0.2, 1);
+  --t:    0.17s;
+}
+
+/* ──────────────────────────────────────────────────────────────
+   § 1  GLOBAL RESET POLISH
+   ────────────────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+  background: var(--c-page);
+  font-family: 'Inter', 'SF Pro Text', -apple-system, system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Thin accent scrollbar */
+::-webkit-scrollbar              { width: 4px; height: 4px; }
+::-webkit-scrollbar-track        { background: transparent; }
+::-webkit-scrollbar-thumb        { background: rgba(124,92,252,0.18); border-radius: 99px; }
+::-webkit-scrollbar-thumb:hover  { background: rgba(124,92,252,0.36); }
+
+/* ──────────────────────────────────────────────────────────────
+   § 2  LAYOUT SHELL
+   ────────────────────────────────────────────────────────────── */
+.flex.h-screen,
+.flex.h-dvh,
+.flex.h-\[100dvh\],
+.flex.h-\[100vh\] {
+  background: var(--c-page);
+}
+
+/* ──────────────────────────────────────────────────────────────
+   § 3  SIDEBAR
+   ────────────────────────────────────────────────────────────── */
+
+/* Container */
+.w-64.flex.flex-col,
+.w-72.flex.flex-col,
+.w-80.flex.flex-col,
+aside.flex.flex-col,
+aside {
+  background: linear-gradient(180deg, #fdfcff 0%, #f8f6fd 100%) !important;
+  border-right: 1px solid var(--c-border) !important;
+  box-shadow: 2px 0 20px rgba(100, 70, 200, 0.04) !important;
+}
+
+/* Brand / logo text */
+.text-xl.font-bold,
+.text-2xl.font-bold {
+  color: var(--c-text) !important;
+  letter-spacing: -0.4px !important;
+}
+
+/* ── NEW CHAT BUTTON ─────────────────────── */
+/* Targets the purple gradient button at top of sidebar */
+.w-full.flex.items-center.justify-center.gap-2.py-2,
+.w-full.rounded-xl.bg-gradient-to-r,
+.w-full.rounded-lg.bg-gradient-to-r,
+button.w-full.rounded-xl,
+button.w-full.rounded-lg {
+  background: linear-gradient(135deg, var(--c-accent) 0%, var(--c-accent-2) 100%) !important;
+  border: none !important;
+  border-radius: var(--r-lg) !important;
+  box-shadow: 0 4px 18px rgba(124,92,252,0.38) !important;
+  color: #fff !important;
+  font-size: 13.5px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.05px;
+  transition: transform var(--t) var(--ease),
+              box-shadow var(--t) var(--ease) !important;
+  will-change: transform;
+}
+
+button.w-full.rounded-xl:hover,
+button.w-full.rounded-lg:hover {
+  transform: translateY(-1px) scale(1.01) !important;
+  box-shadow: 0 6px 24px rgba(124,92,252,0.48) !important;
+}
+
+button.w-full.rounded-xl:active,
+button.w-full.rounded-lg:active {
+  transform: scale(0.98) !important;
+}
+
+/* ── SEARCH INPUT ────────────────────────── */
+input[placeholder*="Search"],
+input[placeholder*="search"],
+input[placeholder*="conversations"] {
+  background: rgba(124,92,252,0.05) !important;
+  border: 1px solid var(--c-border) !important;
+  border-radius: var(--r-md) !important;
+  color: var(--c-text) !important;
+  font-size: 13px !important;
+  padding: 8px 12px !important;
+  transition: border-color var(--t) var(--ease),
+              box-shadow var(--t) var(--ease) !important;
+}
+
+input[placeholder*="Search"]:focus,
+input[placeholder*="conversations"]:focus {
+  border-color: var(--c-accent) !important;
+  box-shadow: 0 0 0 3px var(--c-accent-glow) !important;
+  outline: none !important;
+  background: #fff !important;
+}
+
+input::placeholder { color: var(--c-text-3) !important; }
+
+/* ── SECTION LABELS (ACTIVE NOW / STUDIO CHAT) ── */
+.text-\[10px\].font-semibold.uppercase,
+.text-xs.font-semibold.uppercase,
+.text-\[11px\].uppercase {
+  font-size: 10px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.9px !important;
+  color: var(--c-text-3) !important;
+}
+
+/* ── CHAT LIST ITEMS ─────────────────────── */
+.flex.items-center.gap-3.px-3.py-2.rounded-xl.cursor-pointer,
+.flex.items-center.gap-2.px-3.py-2.rounded-xl.cursor-pointer,
+.flex.items-center.gap-3.p-3.rounded-xl.cursor-pointer,
+.flex.items-center.gap-2.p-3.rounded-xl.cursor-pointer,
+.flex.items-center.gap-3.px-3.py-2.rounded-lg.cursor-pointer,
+.flex.items-center.gap-2.px-3.py-2.rounded-lg.cursor-pointer {
+  border-radius: var(--r-md) !important;
+  transition: background var(--t) var(--ease),
+              transform var(--t) var(--ease) !important;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Hover state */
+.flex.items-center.gap-3.px-3.py-2.rounded-xl.cursor-pointer:hover,
+.flex.items-center.gap-2.px-3.py-2.rounded-xl.cursor-pointer:hover,
+.flex.items-center.gap-3.p-3.rounded-xl.cursor-pointer:hover {
+  background: var(--c-accent-faint) !important;
+}
+
+/* ── ACTIVE CHAT ITEM ────────────────────── */
+/* Purple/violet tinted active item */
+.bg-purple-50,
+.bg-violet-50,
+.bg-purple-100\/60,
+.bg-violet-100\/60 {
+  background: linear-gradient(
+    135deg,
+    rgba(124,92,252,0.11) 0%,
+    rgba(168,85,247,0.07) 100%
+  ) !important;
+  border-left: 3px solid var(--c-accent) !important;
+  border-radius: 0 var(--r-md) var(--r-md) 0 !important;
+}
+
+/* Active item text color */
+.bg-purple-50 .font-semibold,
+.bg-violet-50 .font-semibold,
+.bg-purple-100\/60 .font-semibold {
+  color: var(--c-accent) !important;
+}
+
+/* ── SIDEBAR AVATAR RING ─────────────────── */
+.rounded-full.overflow-hidden.w-10.h-10,
+.rounded-full.overflow-hidden.w-9.h-9,
+.w-10.h-10.rounded-full,
+.w-9.h-9.rounded-full {
+  border: 2px solid rgba(255,255,255,0.9) !important;
+  box-shadow: 0 2px 10px rgba(124,92,252,0.2) !important;
+}
+
+/* ── SIDEBAR BOTTOM USER STRIP ───────────── */
+.border-t.p-3.flex.items-center,
+.border-t.px-3.py-3.flex.items-center {
+  background: rgba(255,255,255,0.6) !important;
+  backdrop-filter: blur(8px) !important;
+  -webkit-backdrop-filter: blur(8px) !important;
+  border-top-color: var(--c-border) !important;
+}
+
+/* ── SIDEBAR ICON BUTTONS (search/bell) ── */
+.p-2.rounded-lg.hover\:bg-gray-100,
+.p-2.rounded-xl.hover\:bg-gray-100,
+.p-1\.5.rounded-lg {
+  border-radius: var(--r-sm) !important;
+  transition: background var(--t) var(--ease),
+              color var(--t) var(--ease),
+              transform var(--t) var(--ease) !important;
+  color: var(--c-text-2) !important;
+}
+
+.p-2.rounded-lg.hover\:bg-gray-100:hover,
+.p-2.rounded-xl.hover\:bg-gray-100:hover {
+  background: var(--c-accent-faint) !important;
+  color: var(--c-accent) !important;
+  transform: scale(1.06) !important;
+}
+
+/* ──────────────────────────────────────────────────────────────
+   § 4  CHAT HEADER
+   ────────────────────────────────────────────────────────────── */
+
+/* Header container — glass effect */
+.flex.items-center.justify-between.px-4.py-3.border-b,
+.flex.items-center.justify-between.px-6.py-3.border-b,
+.flex.items-center.justify-between.p-4.border-b,
+.border-b.bg-white.flex,
+.sticky.top-0.z-10.flex {
+  background: var(--c-header-bg) !important;
+  backdrop-filter: blur(14px) saturate(1.5) !important;
+  -webkit-backdrop-filter: blur(14px) saturate(1.5) !important;
+  border-bottom: 1px solid var(--c-border) !important;
+  box-shadow: 0 1px 18px rgba(100,70,200,0.07) !important;
+  z-index: 40 !important;
+}
+
+/* Header avatar */
+.flex.items-center.gap-3 > .rounded-full,
+.flex.items-center.gap-2 > .rounded-full {
+  border: 2.5px solid #fff !important;
+  box-shadow: 0 3px 14px rgba(124,92,252,0.22) !important;
+}
+
+/* Username in header */
+.font-semibold.text-gray-900,
+.font-bold.text-gray-900,
+.font-semibold.text-sm,
+.font-semibold.text-base {
+  font-weight: 700 !important;
+  color: var(--c-text) !important;
+  letter-spacing: -0.15px !important;
+}
+
+/* Status / member count */
+.text-sm.text-gray-500,
+.text-xs.text-gray-500,
+.text-green-500.text-xs,
+.text-green-500.text-sm {
+  font-size: 12px !important;
+  color: var(--c-text-2) !important;
+  font-weight: 400 !important;
+}
+
+/* ── ONLINE DOT ──────────────────────────── */
+.w-2\.5.h-2\.5.bg-green-500,
+.w-2.h-2.bg-green-500,
+.w-2\.5.h-2\.5.rounded-full.bg-green-500,
+.w-3.h-3.bg-green-500,
+.w-2\.5.h-2\.5.bg-green-400,
+.h-2\.5.w-2\.5.rounded-full.bg-green-500 {
+  background: var(--c-green) !important;
+  border-radius: 50% !important;
+  box-shadow: 0 0 0 2px #fff, 0 0 8px var(--c-green-glow) !important;
+  animation: cvx-pulse 2.6s ease-in-out infinite !important;
+}
+
+@keyframes cvx-pulse {
+  0%,100% { box-shadow: 0 0 0 2px #fff, 0 0 6px var(--c-green-glow); }
+  50%      { box-shadow: 0 0 0 2px #fff, 0 0 14px rgba(34,197,94,0.65); }
+}
+
+/* Header action buttons */
+.flex.items-center.gap-2 > button,
+.flex.items-center.gap-1 > button {
+  border-radius: var(--r-sm) !important;
+  padding: 6px !important;
+  color: var(--c-text-2) !important;
+  transition: background var(--t) var(--ease),
+              color var(--t) var(--ease),
+              transform var(--t) var(--ease) !important;
+}
+
+.flex.items-center.gap-2 > button:hover {
+  background: var(--c-accent-faint) !important;
+  color: var(--c-accent) !important;
+  transform: scale(1.06) !important;
+}
+
+/* ──────────────────────────────────────────────────────────────
+   § 5  CHAT AREA — REMOVE EMPTY FEEL
+   ────────────────────────────────────────────────────────────── */
+
+/* Main scroll container */
+.flex-1.overflow-y-auto.p-4,
+.flex-1.overflow-y-auto.px-4,
+.flex-1.overflow-y-auto.p-6,
+.flex-1.overflow-y-auto {
+  background:
+    radial-gradient(ellipse 55% 40% at 15% 8%,  rgba(124,92,252,0.055) 0%, transparent 100%),
+    radial-gradient(ellipse 50% 35% at 85% 85%, rgba(168,85,247,0.045) 0%, transparent 100%),
+    linear-gradient(180deg, #f4f2fa 0%, #f7f5fb 50%, #f3f1f8 100%) !important;
+}
+
+/* ── DATE SEPARATOR ─────────────────────── */
+.flex.items-center.gap-2.my-4 span,
+.flex.items-center.gap-3.my-4 span,
+.text-xs.text-gray-400,
+.text-\[11px\].text-gray-400 {
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.4px !important;
+  color: var(--c-text-3) !important;
+}
+
+.flex.items-center.gap-2.my-4 .flex-1.h-px,
+.flex.items-center.gap-3.my-4 .flex-1.h-px {
+  background: linear-gradient(90deg, transparent, var(--c-border), transparent) !important;
+}
+
+/* ──────────────────────────────────────────────────────────────
+   § 6  MESSAGES
+   ────────────────────────────────────────────────────────────── */
+
+/* Entrance animation for every message wrapper */
+.flex.gap-2.mb-4,
+.flex.gap-3.mb-4,
+.flex.gap-2.mb-3,
+.flex.gap-3.mb-3,
+.flex.mb-4,
+.flex.mb-3 {
+  animation: cvx-msg-in 0.22s var(--ease) both;
+}
+
+@keyframes cvx-msg-in {
+  from { opacity: 0; transform: translateY(7px); }
+  to   { opacity: 1; transform: translateY(0);   }
+}
+
+/* ── RECEIVED BUBBLE ─────────────────────── */
+/* White bubble on the left */
+.bg-white.rounded-2xl,
+.bg-white.rounded-xl,
+.bg-white.rounded-lg,
+.rounded-2xl.rounded-tl-sm.bg-white,
+.rounded-2xl.rounded-tl-none.bg-white {
+  background: linear-gradient(140deg, #ffffff 0%, #f0edff 100%) !important;
+  border: 1px solid rgba(120,80,220,0.10) !important;
+  border-left: 2.5px solid rgba(124,92,252,0.18) !important;
+  border-radius: 4px var(--r-lg) var(--r-lg) var(--r-lg) !important;
+  box-shadow: var(--sh-msg-in) !important;
+  color: var(--c-text) !important;
+  padding: 9px 13px !important;
+}
+
+
+
+/* ================================================================
+   BRIDGE LAYER FOR CONVOX COMPONENT CLASSES
+   The app mostly uses custom classes, not Tailwind utilities.
+   These selectors map the premium theme onto the real DOM.
+   ================================================================ */
+
+.sidebar {
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.96) 0%, rgba(247, 243, 255, 0.94) 100%) !important;
+  border-right: 1px solid rgba(124, 92, 252, 0.12) !important;
+  box-shadow: 10px 0 36px rgba(124, 92, 252, 0.06) !important;
+}
+
+.sidebar__header,
+.sidebar__footer {
+  background: rgba(255, 255, 255, 0.48) !important;
+}
+
+.sidebar__brand {
+  color: #20192f !important;
+  font-weight: 800 !important;
+  letter-spacing: -0.03em !important;
+}
+
+.sidebar__subtitle,
+.sidebar__section-label {
+  color: #9c95bc !important;
+  letter-spacing: 0.16em !important;
+}
+
+.sidebar__icon-btn {
+  background: rgba(255, 255, 255, 0.72) !important;
+  border: 1px solid rgba(124, 92, 252, 0.12) !important;
+  box-shadow: 0 8px 24px rgba(124, 92, 252, 0.07) !important;
+}
+
+.sidebar__new-btn,
+.send-btn {
+  background: linear-gradient(135deg, #7c5cfc 0%, #a855f7 52%, #ec4899 100%) !important;
+  box-shadow: 0 16px 34px rgba(124, 92, 252, 0.26) !important;
+}
+
+/* BUG FIX: .send-btn above uses !important — disabled state must also use
+   !important to override it. Covers all visual properties. */
+.send-btn:disabled {
+  background: var(--color-border, rgba(124, 58, 237, 0.12)) !important;
+  box-shadow: none !important;
+  color: var(--color-text-muted, #9aa3b5) !important;
+  cursor: not-allowed !important;
+  opacity: 0.55 !important;
+  transform: none !important;
+}
+
+.sidebar__search {
+  background: rgba(245, 241, 255, 0.9) !important;
+  border: 1px solid rgba(124, 92, 252, 0.12) !important;
+  box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.6) !important;
+}
+
+.sidebar__search:focus {
+  border-color: #7c5cfc !important;
+  box-shadow: 0 0 0 3px rgba(124, 92, 252, 0.16) !important;
+  background: #ffffff !important;
+}
+
+.chat-item {
+  border-radius: 18px !important;
+}
+
+.chat-item:hover {
+  background: rgba(124, 92, 252, 0.06) !important;
+}
+
+.chat-item--active {
+  background: linear-gradient(135deg, rgba(124, 92, 252, 0.12), rgba(168, 85, 247, 0.08)) !important;
+  border: 1px solid rgba(124, 92, 252, 0.18) !important;
+  box-shadow: 0 10px 24px rgba(124, 92, 252, 0.08) !important;
+}
+
+.chat-item--active::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 10px;
+  bottom: 10px;
+  width: 4px;
+  border-radius: 999px;
+  background: linear-gradient(180deg, #7c5cfc, #ec4899);
+}
+
+.chat-item__name,
+.sidebar__footer-name,
+.chat-header__name,
+.msg-sender {
+  color: #2a213b !important;
+}
+
+.chat-item--active .chat-item__name {
+  color: #7c5cfc !important;
+}
+
+.chat-item__preview,
+.chat-item__time,
+.sidebar__footer-status,
+.chat-header__status,
+.msg-time {
+  color: #918aac !important;
+}
+
+.status-dot {
+  border-color: #fbf9ff !important;
+}
+
+.status-dot--online,
+.chat-header__status-dot {
+  background: #22c55e !important;
+  box-shadow: 0 0 0 5px rgba(34, 197, 94, 0.14) !important;
+}
+
+.chat-window {
+  background:
+    radial-gradient(circle at 14% 12%, rgba(124, 92, 252, 0.14), transparent 26%),
+    radial-gradient(circle at 86% 86%, rgba(168, 85, 247, 0.12), transparent 24%),
+    linear-gradient(180deg, #fcfbff 0%, #f3effd 100%) !important;
+}
+
+.chat-header {
+  background: rgba(255, 255, 255, 0.72) !important;
+  border-bottom: 1px solid rgba(124, 92, 252, 0.12) !important;
+  box-shadow: 0 10px 26px rgba(124, 92, 252, 0.05) !important;
+}
+
+.chat-header__avatar {
+  border: 2px solid rgba(255, 255, 255, 0.92) !important;
+  box-shadow: 0 8px 20px rgba(124, 92, 252, 0.12) !important;
+  background: rgba(124, 92, 252, 0.1) !important;
+  color: #7c5cfc !important;
+}
+
+.chat-header__menu-btn,
+.ctx-menu,
+.chat-header__menu,
+.relationship-modal,
+.message-emoji-popover {
+  background: rgba(255, 255, 255, 0.84) !important;
+  border: 1px solid rgba(124, 92, 252, 0.12) !important;
+  box-shadow: 0 18px 40px rgba(124, 92, 252, 0.12) !important;
+  backdrop-filter: blur(18px) !important;
+  -webkit-backdrop-filter: blur(18px) !important;
+}
+
+.date-divider::before {
+  background: rgba(124, 92, 252, 0.12) !important;
+}
+
+.date-divider__text {
+  color: #9c95bc !important;
+  background: rgba(255, 255, 255, 0.96) !important;
+  border: 1px solid rgba(124, 92, 252, 0.08) !important;
+}
+
+.msg-row {
+  animation: cvx-msg-in 0.24s var(--ease) both;
+}
+
+.msg-avatar {
+  background: rgba(124, 92, 252, 0.08) !important;
+  color: #7c5cfc !important;
+  border: 1px solid rgba(124, 92, 252, 0.16) !important;
+  box-shadow: 0 8px 18px rgba(124, 92, 252, 0.08) !important;
+}
+
+.msg-bubble {
+  border-radius: 22px !important;
+}
+
+.msg-bubble--other {
+  background: linear-gradient(180deg, #ffffff 0%, #f4edff 100%) !important;
+  color: #2a213b !important;
+  box-shadow: 0 10px 24px rgba(44, 25, 84, 0.08) !important;
+  border: 1px solid rgba(124, 92, 252, 0.08) !important;
+  position: relative;
+}
+
+.msg-bubble--other::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 14px;
+  bottom: 14px;
+  width: 3px;
+  border-radius: 999px;
+  background: linear-gradient(180deg, rgba(124, 92, 252, 0.75), rgba(168, 85, 247, 0.35));
+}
+
+.msg-bubble--mine {
+  background: linear-gradient(135deg, #7c5cfc 0%, #a855f7 52%, #ec4899 100%) !important;
+  color: #ffffff !important;
+  box-shadow: 0 16px 30px rgba(124, 92, 252, 0.24) !important;
+  border-bottom-right-radius: 8px !important;
+}
+
+.msg-edited-tag,
+.msg-pinned-tag,
+.msg-forwarded {
+  color: #8d63f7 !important;
+}
+
+.msg-pinned-tag {
+  background: rgba(124, 92, 252, 0.12) !important;
+  border-radius: 999px !important;
+  padding: 4px 10px !important;
+  font-weight: 700 !important;
+}
+
+.msg-quick-react,
+.msg-reaction-pill,
+.msg-checkbox,
+.input-icon-btn {
+  border: 1px solid rgba(124, 92, 252, 0.12) !important;
+  background: rgba(255, 255, 255, 0.8) !important;
+}
+
+.msg-quick-react:hover,
+.msg-reaction-pill:hover,
+.input-icon-btn:hover {
+  background: rgba(124, 92, 252, 0.1) !important;
+  color: #7c5cfc !important;
+}
+
+.msg-reaction-pill--active,
+.msg-checkbox--checked {
+  background: linear-gradient(135deg, rgba(124, 92, 252, 0.18), rgba(168, 85, 247, 0.12)) !important;
+  color: #7c5cfc !important;
+  border-color: rgba(124, 92, 252, 0.22) !important;
+}
+
+.input-area {
+  background: rgba(255, 255, 255, 0.64) !important;
+  border-top: 1px solid rgba(124, 92, 252, 0.08) !important;
+}
+
+.input-glass,
+.cvx-input-wrap {
+  background: rgba(255, 255, 255, 0.92) !important;
+  border: 1px solid rgba(124, 92, 252, 0.12) !important;
+  box-shadow: 0 14px 30px rgba(124, 92, 252, 0.1) !important;
+}
+
+.input-glass:focus-within,
+.cvx-input-wrap:focus-within {
+  border-color: #7c5cfc !important;
+  box-shadow: 0 0 0 3px rgba(124, 92, 252, 0.16), 0 18px 34px rgba(124, 92, 252, 0.12) !important;
+}
+
+.input-glass__field {
+  color: #2a213b !important;
+  caret-color: #7c5cfc !important;
+}
+
+.input-glass__field::placeholder {
+  color: #a39cbc !important;
+}
+

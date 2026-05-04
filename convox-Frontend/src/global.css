@@ -1,75 +1,109 @@
-/* ============================================
-   CONVOX — Global Styles & Design Tokens
-   Day 26: Premium UI Upgrade
-   ============================================ */
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;0,9..40,800;1,9..40,400&family=Playfair+Display:wght@700;800;900&display=swap');
 
-/* ---------- Google Font Import ---------- */
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap');
+/* ================================================================
+   CONVOX — Unified Design System
+   Matches the login page visual DNA throughout the entire app.
+   Light, luminous, glass-morphic with violet/pink/cyan accents.
+   ================================================================ */
 
-/* ---------- Design Tokens ---------- */
 :root {
-  /* Colors */
-  --color-bg:          #F8F9FC;
-  --color-sidebar:     #F2F5FA;
-  --color-primary:     #7888A8;
-  --color-primary-dark:#6273A0;
-  --color-accent:      #C48898;
-  --color-accent-dark: #B5717F;
+  /* Core palette — mirrors AuthScreen.css exactly */
+  --cx-violet: #8b5cf6;
+  --cx-pink: #ec4899;
+  --cx-cyan: #06b6d4;
+  --cx-purple: #a855f7;
 
-  /* Text */
-  --color-text-primary:   #2D3142;
-  --color-text-secondary: #6B748A;
-  --color-text-muted:     #9AA3B5;
-
-  /* Borders */
-  --color-border:       #E2E8F0;
-  --color-border-focus: rgba(120, 136, 168, 0.4);
-
-  /* Status */
-  --color-online:  #52C47E;
-  --color-offline: #B0B8C8;
-  --color-busy:    #F0A050;
+  /* Gradient — the signature of Convox */
+  --cx-gradient: linear-gradient(135deg, #8b5cf6 0%, #a855f7 38%, #ec4899 72%, #06b6d4 100%);
+  --cx-gradient-soft: linear-gradient(135deg, rgba(139, 92, 246, 0.12) 0%, rgba(236, 72, 153, 0.07) 72%, rgba(6, 182, 212, 0.07) 100%);
+  --cx-gradient-hover: linear-gradient(135deg, #7c3aed 0%, #9333ea 38%, #db2777 72%, #0891b2 100%);
 
   /* Surfaces */
-  --color-surface:       #FFFFFF;
-  --color-surface-hover: rgba(120, 136, 168, 0.08);
-  --color-surface-active:rgba(120, 136, 168, 0.14);
+  --cx-bg: #f8f6ff;
+  --cx-bg-alt: #f2f0fb;
+  --cx-sidebar-bg: linear-gradient(180deg, #fdfcff 0%, #f7f4fe 100%);
+  --cx-chat-bg: #f9f8fe;
+  --cx-surface: rgba(255, 255, 255, 0.88);
+  --cx-surface-hover: rgba(139, 92, 246, 0.05);
+  --cx-surface-active: rgba(139, 92, 246, 0.09);
+  --cx-glass: rgba(255, 255, 255, 0.82);
 
-  /* Bubble colors */
-  --color-bubble-mine:   #7888A8;
-  --color-bubble-other:  #FFFFFF;
-  --color-bubble-text-mine:  #FFFFFF;
-  --color-bubble-text-other: #2D3142;
+  /* Text */
+  --cx-text: #1e2433;
+  --cx-text-2: #7b8499;
+  --cx-text-3: #b0b8c8;
 
-  /* Typography */
-  --font-main: 'DM Sans', sans-serif;
-  --font-mono: 'DM Mono', monospace;
-
-  /* Spacing */
-  --space-xs:  4px;
-  --space-sm:  8px;
-  --space-md:  12px;
-  --space-lg:  16px;
-  --space-xl:  24px;
-
-  /* Radii */
-  --radius-sm:   6px;
-  --radius-md:   10px;
-  --radius-lg:   14px;
-  --radius-xl:   20px;
-  --radius-full: 9999px;
+  /* Borders */
+  --cx-border: rgba(120, 136, 168, 0.16);
+  --cx-border-md: rgba(120, 136, 168, 0.24);
+  --cx-border-focus: rgba(139, 92, 246, 0.45);
 
   /* Shadows */
-  --shadow-sm: 0 1px 3px rgba(45, 49, 66, 0.06);
-  --shadow-md: 0 4px 12px rgba(45, 49, 66, 0.08);
+  --cx-shadow-sm: 0 4px 16px rgba(124, 58, 237, 0.07), 0 1px 4px rgba(0, 0, 0, 0.04);
+  --cx-shadow-md: 0 12px 36px rgba(124, 58, 237, 0.10), 0 4px 10px rgba(0, 0, 0, 0.05);
+  --cx-shadow-lg: 0 28px 80px rgba(124, 58, 237, 0.12), 0 14px 32px rgba(236, 72, 153, 0.06);
+  --cx-shadow-glow: 0 14px 34px rgba(139, 92, 246, 0.28), 0 8px 18px rgba(236, 72, 153, 0.12);
+
+  /* Status */
+  --cx-online: #22c55e;
+  --cx-offline: #d1d5db;
+  --cx-busy: #f59e0b;
+
+  /* Radii */
+  --r-sm: 8px;
+  --r-md: 12px;
+  --r-lg: 18px;
+  --r-xl: 24px;
+  --r-2xl: 28px;
+  --r-full: 9999px;
+
+  /* Font */
+  --font-main: 'DM Sans', sans-serif;
+  --font-display: 'Playfair Display', serif;
+  --font-mono: 'DM Mono', monospace;
 
   /* Transitions */
-  --transition-fast:   all 0.15s ease;
-  --transition-normal: all 0.22s ease;
-  --transition-spring: all 0.28s cubic-bezier(0.22, 0.68, 0, 1.2);
+  --t-fast: all 0.15s ease;
+  --t-normal: all 0.22s ease;
+  --t-spring: all 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  /* Legacy aliases so existing JSX keeps working */
+  --color-bg: var(--cx-bg);
+  --color-sidebar: #f7f4fe;
+  --color-surface: var(--cx-surface);
+  --color-surface-hover: var(--cx-surface-hover);
+  --color-surface-active: var(--cx-surface-active);
+  --color-primary: var(--cx-violet);
+  --color-primary-dark: #6d28d9;
+  --color-primary-alpha: rgba(139, 92, 246, 0.12);
+  --color-accent: var(--cx-pink);
+  --color-accent-soft: rgba(236, 72, 153, 0.14);
+  --color-text-primary: var(--cx-text);
+  --color-text-secondary: var(--cx-text-2);
+  --color-text-muted: var(--cx-text-3);
+  --color-border: var(--cx-border);
+  --color-border-focus: var(--cx-border-focus);
+  --color-online: var(--cx-online);
+  --color-offline: var(--cx-offline);
+  --color-busy: var(--cx-busy);
+  --color-bubble-mine: var(--cx-gradient);
+  --color-bubble-text-mine: #fff;
+  --color-bubble-other: rgba(255, 255, 255, 0.92);
+  --color-bubble-text-other: var(--cx-text);
+  --shadow-sm: var(--cx-shadow-sm);
+  --shadow-md: var(--cx-shadow-md);
+  --shadow-glass: var(--cx-shadow-lg);
+  --radius-sm: var(--r-sm);
+  --radius-md: var(--r-md);
+  --radius-lg: var(--r-lg);
+  --radius-xl: var(--r-xl);
+  --radius-full: var(--r-full);
+  --transition-fast: var(--t-fast);
+  --transition-normal: var(--t-normal);
+  --transition-spring: var(--t-spring);
 }
 
-/* ---------- Reset ---------- */
+/* ── Reset ─────────────────────────────────────────────────── */
 *,
 *::before,
 *::after {
@@ -78,61 +112,294 @@
   padding: 0;
 }
 
-html, body, #root {
+html {
   height: 100%;
-  overflow: hidden;
 }
 
 body {
+  height: 100%;
   font-family: var(--font-main);
   font-size: 14px;
-  background: var(--color-bg);
-  color: var(--color-text-primary);
+  color: var(--cx-text);
+  background:
+    radial-gradient(circle at 10% 10%, rgba(168, 85, 247, 0.06), transparent 26%),
+    radial-gradient(circle at 90% 14%, rgba(6, 182, 212, 0.05), transparent 24%),
+    radial-gradient(circle at 85% 82%, rgba(236, 72, 153, 0.04), transparent 25%),
+    linear-gradient(135deg, #fff7fb, #f2f7ff 45%, #f2fff8);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* ---------- Message Entry Animation ---------- */
+#root {
+  height: 100%;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+  /* Removes the 300ms tap delay on mobile — makes all taps feel instant */
+  touch-action: manipulation;
+}
+
+/* Smooth momentum scrolling on iOS for all scrollable areas */
+.sidebar__list,
+.messages-area {
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Safe-area helpers for iPhone notch / home indicator */
+:root {
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-top:    env(safe-area-inset-top, 0px);
+}
+
+
+/* ── Layout ─────────────────────────────────────────────────── */
+.chat-page,
+.chat-app {
+  overflow: hidden;
+}
+
+.chat-window {
+  overflow: hidden;
+  min-width: 0;
+}
+
+.messages-area,
+.sidebar__list {
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+/* ── Scrollbar ──────────────────────────────────────────────── */
+::-webkit-scrollbar {
+  width: 4px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(139, 92, 246, 0.2);
+  border-radius: 99px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(139, 92, 246, 0.38);
+}
+
+/* ── Portal layers ──────────────────────────────────────────── */
+.modal,
+.dropdown-panel,
+.search-panel,
+.notifications-panel,
+.profile-panel {
+  position: fixed !important;
+  z-index: 9999 !important;
+}
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 10, 40, 0.38);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  z-index: 9998;
+  animation: fadeIn 0.18s ease;
+}
+
+.cx-overlay-backdrop {
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(circle at 20% 20%, rgba(124, 58, 237, 0.14), transparent 28%),
+    radial-gradient(circle at 80% 80%, rgba(236, 72, 153, 0.11), transparent 24%),
+    rgba(15, 10, 40, 0.46);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  z-index: 99998;
+  animation: cxOverlayFade 0.22s ease both;
+}
+
+.cx-overlay-shell {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  width: min(92vw, 760px);
+  max-height: min(86vh, 820px);
+  transform: translate(-50%, -50%);
+  border-radius: var(--r-2xl);
+  background:
+    radial-gradient(circle at top right, rgba(124, 58, 237, 0.10), transparent 34%),
+    radial-gradient(circle at bottom left, rgba(236, 72, 153, 0.08), transparent 28%),
+    rgba(255, 255, 255, 0.96);
+  border: 1px solid rgba(124, 58, 237, 0.13);
+  box-shadow: var(--cx-shadow-lg), 0 0 0 1px rgba(255, 255, 255, 0.6) inset;
+  overflow-y: auto;            /* scroll rather than clip content */
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  z-index: 99999;
+  animation: cxOverlayPop 0.26s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+/* Mobile: never exceed viewport height; allow scrolling to Save button */
+@media (max-width: 767px) {
+  .cx-overlay-shell {
+    max-height: 90dvh;
+    width: min(92vw, 460px);
+  }
+}
+
+.cx-overlay-shell__scroll {
+  max-height: min(86vh, 820px);
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+/* ── Keyframes ──────────────────────────────────────────────── */
 @keyframes msgSlide {
   from {
     opacity: 0;
     transform: translateY(10px) scale(0.98);
   }
+
   to {
     opacity: 1;
     transform: translateY(0) scale(1);
   }
 }
 
-/* ---------- Typing Indicator Bounce ---------- */
+@keyframes typingBounceDots {
+
+  0%,
+  60%,
+  100% {
+    transform: translateY(0);
+  }
+
+  30% {
+    transform: translateY(-5px);
+  }
+}
+
 @keyframes typingBounce {
-  0%, 60%, 100% { transform: translateY(0); }
-  30%           { transform: translateY(-5px); }
+
+  0%,
+  60%,
+  100% {
+    transform: translateY(0);
+  }
+
+  30% {
+    transform: translateY(-5px);
+  }
 }
 
-/* ---------- Pulse for online dot ---------- */
 @keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50%       { opacity: 0.55; }
+
+  0%,
+  100% {
+    opacity: 1;
+    box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.4);
+  }
+
+  50% {
+    opacity: 0.9;
+    box-shadow: 0 0 0 4px rgba(34, 197, 94, 0);
+  }
 }
 
-/* ---------- Fade In (for empty state) ---------- */
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(6px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
-/* ---------- Scrollbar ---------- */
-::-webkit-scrollbar {
-  width: 4px;
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
-::-webkit-scrollbar-track {
-  background: transparent;
+
+@keyframes cxOverlayFade {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
-::-webkit-scrollbar-thumb {
-  background: var(--color-border);
-  border-radius: var(--radius-full);
+
+@keyframes cxOverlayPop {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.94) translateY(10px);
+    filter: blur(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1) translateY(0);
+    filter: blur(0);
+  }
 }
-::-webkit-scrollbar-thumb:hover {
-  background: var(--color-text-muted);
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes gradientShift {
+
+  0%,
+  100% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+@keyframes float {
+
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+
+  100% {
+    transform: translateX(100%);
+  }
 }

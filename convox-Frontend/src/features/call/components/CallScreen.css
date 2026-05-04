@@ -1,0 +1,722 @@
+/* ================================================================
+   CallScreen.css — WhatsApp-style calling UI for Convox
+   Reuses: --cx-* tokens, --font-main, --r-*, --t-spring from global.css
+   Reuses: keyframe `pulse` from global.css
+   Adds: call-specific layouts, wavy animation, ripple rings
+   ================================================================ */
+
+/* ── Shared backdrop (incoming + active call) ─────────────────── */
+.cx-call-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 99980;
+  background:
+    radial-gradient(ellipse at 30% 20%, rgba(124, 58, 237, 0.35) 0%, transparent 55%),
+    radial-gradient(ellipse at 75% 80%, rgba(236, 72, 153, 0.25) 0%, transparent 50%),
+    #0d0f1e;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-family: var(--font-main);
+  overflow: hidden;
+  animation: cx-call-in 0.32s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+@keyframes cx-call-in {
+  from { opacity: 0; transform: scale(0.97); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+/* Noise grain overlay for depth */
+.cx-call-backdrop::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ── Incoming call card ────────────────────────────────────────── */
+.cx-icp {
+  position: fixed;
+  inset: 0;
+  z-index: 99990;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background:
+    radial-gradient(ellipse at 30% 20%, rgba(124, 58, 237, 0.38) 0%, transparent 55%),
+    radial-gradient(ellipse at 75% 80%, rgba(236, 72, 153, 0.28) 0%, transparent 50%),
+    #0d0f1e;
+  color: #fff;
+  font-family: var(--font-main);
+  overflow: hidden;
+  animation: cx-call-in 0.3s ease both;
+}
+
+.cx-icp__type-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.5);
+  margin-bottom: 32px;
+  z-index: 1;
+}
+
+.cx-icp__type-badge svg {
+  width: 14px;
+  height: 14px;
+}
+
+/* ── Shared avatar with ripple rings ──────────────────────────── */
+.cx-avatar-wrap {
+  position: relative;
+  width: 140px;
+  height: 140px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1;
+  margin-bottom: 28px;
+}
+
+.cx-avatar {
+  width: 110px;
+  height: 110px;
+  border-radius: 50%;
+  background: var(--cx-gradient);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 38px;
+  font-weight: 800;
+  color: #fff;
+  position: relative;
+  z-index: 3;
+  box-shadow: 0 16px 48px rgba(124, 58, 237, 0.5);
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+.cx-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+/* Ripple rings — reuse `icp-pulse` logic */
+.cx-ripple-ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 2px solid rgba(139, 92, 246, 0.5);
+  animation: cx-ripple 2.6s ease-out infinite;
+  z-index: 1;
+}
+.cx-ripple-ring:nth-child(2) { animation-delay: 0.85s; }
+.cx-ripple-ring:nth-child(3) { animation-delay: 1.7s; }
+
+@keyframes cx-ripple {
+  0%   { transform: scale(1);   opacity: 0.7; }
+  100% { transform: scale(2.2); opacity: 0; }
+}
+
+.cx-caller-name {
+  font-size: 30px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  text-align: center;
+  color: #fff;
+  z-index: 1;
+  margin-bottom: 8px;
+}
+
+.cx-call-status-text {
+  font-size: 14px;
+  font-weight: 500;
+  color: rgba(255,255,255,0.5);
+  text-align: center;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Animated dots for "Calling..." */
+.cx-dot-anim span {
+  display: inline-block;
+  animation: cx-dot-bounce 1.4s ease-in-out infinite;
+}
+.cx-dot-anim span:nth-child(2) { animation-delay: 0.2s; }
+.cx-dot-anim span:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes cx-dot-bounce {
+  0%, 60%, 100% { transform: translateY(0); opacity: 0.5; }
+  30%           { transform: translateY(-5px); opacity: 1; }
+}
+
+/* ── Incoming call action buttons ─────────────────────────────── */
+.cx-icp__actions {
+  display: flex;
+  align-items: flex-end;
+  gap: 56px;
+  margin-top: 52px;
+  z-index: 1;
+}
+
+.cx-icp__btn-group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.cx-icp__btn-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.6);
+  letter-spacing: 0.04em;
+}
+
+.cx-call-action-btn {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #fff;
+  transition: var(--t-spring);
+  position: relative;
+  overflow: hidden;
+}
+
+.cx-call-action-btn::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: rgba(255,255,255,0);
+  transition: background 0.2s ease;
+}
+.cx-call-action-btn:hover::after { background: rgba(255,255,255,0.12); }
+.cx-call-action-btn:active { transform: scale(0.91); }
+
+.cx-call-action-btn svg {
+  width: 26px;
+  height: 26px;
+  position: relative;
+  z-index: 1;
+}
+
+.cx-call-action-btn--accept {
+  background: #22c55e;
+  box-shadow: 0 8px 28px rgba(34, 197, 94, 0.55);
+}
+
+.cx-call-action-btn--reject {
+  background: #ef4444;
+  box-shadow: 0 8px 28px rgba(239, 68, 68, 0.55);
+}
+
+/* ================================================================
+   Active Call Screen (VideoCallScreen replacement)
+   ================================================================ */
+
+.cx-vcs {
+  position: fixed;
+  inset: 0;
+  z-index: 99980;
+  background: #0d0d1a;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  color: #fff;
+  font-family: var(--font-main);
+}
+
+/* Remote video fills the full background */
+.cx-vcs__remote-wrap {
+  position: absolute;
+  inset: 0;
+}
+
+.cx-vcs__remote-video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  background: #0d0d1a;
+}
+
+.cx-vcs__remote-video--hidden {
+  opacity: 0;
+}
+
+/* Placeholder when video isn't streaming */
+.cx-vcs__placeholder {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+  background:
+    radial-gradient(ellipse at 30% 25%, rgba(124,58,237,0.32) 0%, transparent 55%),
+    radial-gradient(ellipse at 75% 80%, rgba(236,72,153,0.22) 0%, transparent 50%),
+    #0d0f1e;
+}
+
+/* ── Local video pip ──────────────────────────────────────────── */
+.cx-vcs__local-pip {
+  position: absolute;
+  top: 80px;
+  right: 16px;
+  width: 110px;
+  height: 156px;
+  border-radius: 18px;
+  overflow: hidden;
+  border: 2.5px solid rgba(255,255,255,0.2);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.6);
+  background: #111;
+  z-index: 20;
+  transition: opacity 0.2s ease;
+  cursor: grab;
+}
+
+.cx-vcs__local-pip--faded { opacity: 0.4; }
+
+.cx-vcs__local-pip video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: scaleX(-1);
+}
+
+.cx-vcs__local-pip__off {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0,0,0,0.65);
+  color: rgba(255,255,255,0.5);
+}
+.cx-vcs__local-pip__off svg { width: 26px; height: 26px; }
+
+/* Audio-only mode: mic indicator circle */
+.cx-vcs__audio-pip {
+  position: absolute;
+  top: 80px;
+  right: 16px;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.12);
+  backdrop-filter: blur(8px);
+  border: 2px solid rgba(255,255,255,0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 20;
+  color: rgba(255,255,255,0.7);
+}
+.cx-vcs__audio-pip svg { width: 22px; height: 22px; }
+
+/* ── Top bar ──────────────────────────────────────────────────── */
+.cx-vcs__topbar {
+  position: relative;
+  z-index: 15;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 52px 20px 20px;
+  background: linear-gradient(to bottom, rgba(0,0,0,0.72) 0%, transparent 100%);
+  pointer-events: none;
+}
+
+.cx-vcs__identity {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.cx-vcs__name {
+  font-size: 24px;
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  line-height: 1.1;
+}
+
+.cx-vcs__status {
+  font-size: 13px;
+  color: rgba(255,255,255,0.55);
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.cx-vcs__status--connected { color: #4ade80; }
+.cx-vcs__status--connected::before {
+  content: "";
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #4ade80;
+  display: inline-block;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.cx-vcs__timer {
+  font-size: 15px;
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  color: rgba(255,255,255,0.9);
+  letter-spacing: 0.06em;
+  background: rgba(0,0,0,0.38);
+  backdrop-filter: blur(6px);
+  padding: 5px 14px;
+  border-radius: var(--r-full);
+  pointer-events: auto;
+}
+
+/* ── Error toast ──────────────────────────────────────────────── */
+.cx-vcs__error {
+  position: relative;
+  z-index: 25;
+  margin: 0 16px 8px;
+  padding: 11px 16px;
+  background: rgba(239, 68, 68, 0.88);
+  backdrop-filter: blur(8px);
+  border-radius: var(--r-md);
+  font-size: 13px;
+  font-weight: 600;
+  text-align: center;
+}
+
+/* "Call ended" overlay */
+.cx-vcs__ended-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 30;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  background:
+    radial-gradient(ellipse at 30% 25%, rgba(124,58,237,0.28) 0%, transparent 55%),
+    rgba(13,13,26,0.92);
+  backdrop-filter: blur(4px);
+}
+
+.cx-vcs__ended-icon {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: rgba(239,68,68,0.2);
+  border: 2px solid rgba(239,68,68,0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ef4444;
+}
+.cx-vcs__ended-icon svg { width: 30px; height: 30px; }
+
+.cx-vcs__ended-title {
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.cx-vcs__ended-sub {
+  font-size: 13px;
+  color: rgba(255,255,255,0.5);
+}
+
+/* ── Controls bar ─────────────────────────────────────────────── */
+.cx-vcs__controls {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  padding: 28px 20px calc(28px + var(--safe-bottom));
+  background: linear-gradient(to top, rgba(0,0,0,0.82) 0%, transparent 100%);
+}
+
+.cx-ctrl {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.cx-ctrl__btn {
+  width: 62px;
+  height: 62px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255,255,255,0.15);
+  backdrop-filter: blur(8px);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: var(--t-spring);
+  position: relative;
+  overflow: hidden;
+}
+
+.cx-ctrl__btn::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: rgba(255,255,255,0);
+  transition: background 0.18s ease;
+}
+.cx-ctrl__btn:hover::before { background: rgba(255,255,255,0.1); }
+.cx-ctrl__btn:hover { transform: translateY(-2px) scale(1.06); }
+.cx-ctrl__btn:active { transform: scale(0.91); }
+
+.cx-ctrl__btn svg {
+  width: 22px;
+  height: 22px;
+  position: relative;
+  z-index: 1;
+}
+
+.cx-ctrl__btn--active {
+  background: rgba(255,255,255,0.28);
+  border: 1.5px solid rgba(255,255,255,0.35);
+}
+
+.cx-ctrl__btn--end {
+  background: #ef4444;
+  box-shadow: 0 8px 28px rgba(239,68,68,0.55);
+}
+.cx-ctrl__btn--end:hover { background: #dc2626; transform: translateY(-2px) scale(1.08); }
+
+.cx-ctrl__label {
+  font-size: 11px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.65);
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+  max-width: 76px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: center;
+}
+
+.cx-vcs__sheet-backdrop {
+  position: absolute;
+  inset: 0;
+  z-index: 35;
+  border: none;
+  background: rgba(7, 10, 20, 0.42);
+  backdrop-filter: blur(4px);
+}
+
+.cx-vcs__sheet {
+  position: absolute;
+  left: 16px;
+  right: 16px;
+  bottom: calc(128px + var(--safe-bottom));
+  z-index: 40;
+  border-radius: 24px;
+  padding: 14px 14px 16px;
+  background: linear-gradient(180deg, rgba(25, 28, 44, 0.96) 0%, rgba(14, 17, 29, 0.98) 100%);
+  border: 1px solid rgba(255,255,255,0.08);
+  box-shadow: 0 24px 64px rgba(0,0,0,0.45);
+}
+
+.cx-vcs__sheet-handle {
+  width: 46px;
+  height: 5px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.16);
+  margin: 0 auto 14px;
+}
+
+.cx-vcs__sheet-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.cx-vcs__sheet-eyebrow {
+  margin: 0 0 6px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.5);
+}
+
+.cx-vcs__sheet-title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.cx-vcs__sheet-close {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid rgba(255,255,255,0.08);
+  background: rgba(255,255,255,0.06);
+  color: rgba(255,255,255,0.88);
+  cursor: pointer;
+}
+
+.cx-vcs__sheet-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.cx-vcs__sheet-option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  padding: 14px 16px;
+  border-radius: 18px;
+  border: 1px solid rgba(255,255,255,0.06);
+  background: rgba(255,255,255,0.04);
+  color: #fff;
+  text-align: left;
+  cursor: pointer;
+  transition: var(--t-spring);
+}
+
+.cx-vcs__sheet-option:hover {
+  transform: translateY(-1px);
+  background: rgba(255,255,255,0.08);
+}
+
+.cx-vcs__sheet-option--selected {
+  border-color: rgba(74, 222, 128, 0.35);
+  background: rgba(74, 222, 128, 0.12);
+}
+
+.cx-vcs__sheet-option-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.cx-vcs__sheet-option-title {
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.cx-vcs__sheet-option-sub {
+  font-size: 12px;
+  color: rgba(255,255,255,0.56);
+}
+
+.cx-vcs__sheet-option-mark {
+  font-size: 18px;
+  color: #4ade80;
+}
+
+.cx-vcs__sheet-empty {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px 4px 4px;
+  color: rgba(255,255,255,0.72);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.cx-vcs__sheet-empty p,
+.cx-vcs__sheet-error {
+  margin: 0;
+}
+
+.cx-vcs__sheet-error {
+  margin-top: 12px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  background: rgba(239, 68, 68, 0.18);
+  color: #fecaca;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* ================================================================
+   RESPONSIVE — Mobile
+   ================================================================ */
+
+@media (max-width: 768px) {
+  .cx-caller-name { font-size: 26px; }
+  .cx-avatar { width: 96px; height: 96px; font-size: 32px; }
+  .cx-avatar-wrap { width: 120px; height: 120px; }
+  .cx-call-action-btn { width: 66px; height: 66px; }
+  .cx-icp__actions { gap: 44px; margin-top: 44px; }
+
+  .cx-vcs__local-pip {
+    width: 88px;
+    height: 124px;
+    top: 64px;
+    right: 12px;
+  }
+
+  .cx-vcs__topbar { padding-top: 36px; }
+  .cx-vcs__name { font-size: 20px; }
+
+  .cx-ctrl__btn { width: 58px; height: 58px; }
+  .cx-vcs__controls { gap: 14px; padding-bottom: calc(24px + var(--safe-bottom)); }
+  .cx-vcs__sheet {
+    left: 12px;
+    right: 12px;
+    bottom: calc(112px + var(--safe-bottom));
+  }
+}
+
+@media (max-width: 480px) {
+  .cx-caller-name { font-size: 22px; }
+  .cx-avatar { width: 84px; height: 84px; font-size: 28px; }
+  .cx-avatar-wrap { width: 108px; height: 108px; margin-bottom: 20px; }
+  .cx-icp__actions { gap: 36px; }
+  .cx-call-action-btn { width: 60px; height: 60px; }
+  .cx-call-action-btn svg { width: 22px; height: 22px; }
+
+  .cx-vcs__local-pip { width: 76px; height: 108px; top: 56px; right: 10px; }
+  .cx-vcs__name { font-size: 18px; }
+  .cx-ctrl__btn { width: 54px; height: 54px; }
+  .cx-ctrl__btn svg { width: 19px; height: 19px; }
+  .cx-vcs__controls { gap: 12px; }
+  .cx-vcs__sheet {
+    border-radius: 20px;
+    padding: 12px 12px 14px;
+    bottom: calc(104px + var(--safe-bottom));
+  }
+  .cx-vcs__sheet-title { font-size: 16px; }
+}

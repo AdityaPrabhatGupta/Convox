@@ -1,0 +1,196 @@
+/* ================================================================
+   ChatItem.css — Production, matches login design DNA
+   ================================================================ */
+
+.chat-item {
+  display: flex; align-items: center; gap: 12px;
+  padding: 10px 12px;
+  border-radius: 18px;
+  border: 1px solid transparent;
+  cursor: pointer; position: relative; margin: 0 0 2px;
+  transition: background 0.18s ease, border-color 0.18s ease,
+              transform 0.14s ease, box-shadow 0.18s ease;
+}
+
+.chat-item:hover {
+  background: rgba(139,92,246,0.05);
+  border-color: rgba(139,92,246,0.10);
+  transform: translateX(2px);
+}
+
+.chat-item--focused {
+  background: rgba(139,92,246,0.07);
+  outline: 2px solid rgba(139,92,246,0.22);
+  outline-offset: -2px;
+}
+
+/* Active */
+.chat-item--active {
+  background: linear-gradient(135deg, rgba(139,92,246,0.10), rgba(236,72,153,0.06), rgba(6,182,212,0.05));
+  border: 1px solid rgba(139,92,246,0.18);
+  box-shadow: 0 6px 24px rgba(139,92,246,0.10), 0 2px 6px rgba(236,72,153,0.06);
+}
+.chat-item--active::before {
+  content: '';
+  position: absolute; left: 0; top: 10px; bottom: 10px;
+  width: 3px;
+  background: linear-gradient(180deg, #8b5cf6, #ec4899, #06b6d4);
+  border-radius: 0 3px 3px 0;
+}
+.chat-item--active .chat-item__name { color: var(--cx-violet); font-weight: 700; }
+
+/* Avatar */
+.chat-item__avatar {
+  position: relative;
+  width: 44px; height: 44px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; font-weight: 700; flex-shrink: 0;
+  letter-spacing: 0.3px;
+  transition: transform 0.16s ease, box-shadow 0.16s ease;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+.chat-item:hover .chat-item__avatar {
+  transform: scale(1.06);
+  box-shadow: 0 6px 18px rgba(139,92,246,0.18);
+}
+.chat-item__avatar-image { width: 100%; height: 100%; object-fit: cover; border-radius: inherit; }
+.chat-item__avatar-logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+}
+.chat-item__avatar-logo svg {
+  width: 100%;
+  height: 100%;
+}
+
+.chat-item__avatar--primary {
+  background: linear-gradient(135deg, #f3eeff, #ede0ff);
+  color: #7c3aed;
+  border: 1.5px solid rgba(139,92,246,0.18);
+}
+.chat-item__avatar--accent {
+  background: linear-gradient(135deg, #fce7f3, #fde8f4);
+  color: #db2777;
+  border: 1.5px solid rgba(236,72,153,0.18);
+}
+.chat-item__avatar--group {
+  background: linear-gradient(135deg, #ecfeff, #e0f7fa);
+  color: #0891b2;
+  border-radius: 14px;
+  border: 1.5px solid rgba(6,182,212,0.2);
+}
+.chat-item--active .chat-item__avatar {
+  border-color: rgba(139,92,246,0.34);
+  box-shadow: 0 0 0 3px rgba(139,92,246,0.10), 0 4px 14px rgba(139,92,246,0.18);
+}
+
+/* Status dot */
+.chat-item__status-dot {
+  position: absolute; bottom: 1px; right: 1px;
+  width: 11px; height: 11px;
+  background: var(--cx-online); border-radius: 50%;
+  border: 2.5px solid #fff;
+  box-shadow: 0 0 0 1px rgba(34,197,94,0.3);
+}
+
+/* Text */
+.chat-item__body { flex: 1; min-width: 0; }
+.chat-item__top, .chat-item__bottom {
+  display: flex; justify-content: space-between; align-items: center; gap: 8px;
+}
+.chat-item__top { margin-bottom: 3px; }
+
+.chat-item__name {
+  font-size: 13.5px; font-weight: 600; color: var(--cx-text);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  transition: color 0.15s;
+}
+
+/* top-right: pin icon + timestamp grouped together */
+.chat-item__top-right {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.chat-item__time {
+  font-size: 11px; color: var(--cx-text-3); white-space: nowrap;
+}
+
+/* ── Pin icon badge ── */
+.chat-item__pin-icon {
+  width: 11px;
+  height: 11px;
+  color: #8b5cf6;
+  opacity: 0.75;
+  flex-shrink: 0;
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.2s;
+}
+
+/* Pinned row — subtle left rail accent */
+.chat-item--pinned {
+  background: rgba(139, 92, 246, 0.04);
+  border-color: rgba(139, 92, 246, 0.08);
+}
+.chat-item--pinned::after {
+  content: '';
+  position: absolute;
+  left: 0; top: 8px; bottom: 8px;
+  width: 2px;
+  border-radius: 0 2px 2px 0;
+  background: linear-gradient(180deg, #8b5cf6, #ec4899);
+  opacity: 0.55;
+}
+.chat-item--pinned:hover .chat-item__pin-icon,
+.chat-item--active .chat-item__pin-icon {
+  opacity: 1;
+  transform: rotate(-20deg) scale(1.1);
+}
+.chat-item__preview {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12.5px;
+  color: var(--cx-text-2);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex: 1;
+  min-width: 0;
+}
+
+.chat-item__preview--success {
+  color: #16a34a;
+}
+
+.chat-item__preview--danger {
+  color: #dc2626;
+}
+
+.chat-item__preview-icon {
+  width: 12px;
+  height: 12px;
+  flex-shrink: 0;
+  opacity: 0.9;
+}
+
+.chat-item__preview-text {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Unread badge — gradient pill */
+.chat-item__badge {
+  background: linear-gradient(135deg, #8b5cf6, #ec4899);
+  color: #fff; font-size: 10px; font-weight: 800;
+  min-width: 20px; height: 20px; border-radius: var(--r-full);
+  display: flex; align-items: center; justify-content: center;
+  padding: 0 5px; flex-shrink: 0;
+  box-shadow: 0 2px 8px rgba(139,92,246,0.36);
+  animation: fadeIn 0.22s ease both;
+}

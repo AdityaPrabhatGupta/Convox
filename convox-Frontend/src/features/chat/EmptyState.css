@@ -1,0 +1,42 @@
+/* ================================================================
+   EmptyState.css — Production
+   ================================================================ */
+
+.empty-state {
+  flex: 1; display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 16px; padding: 48px; text-align: center;
+  background:
+    radial-gradient(ellipse 50% 35% at 50% 40%, rgba(139,92,246,0.06), transparent 65%),
+    transparent;
+  animation: fadeIn 0.4s ease both;
+}
+
+.empty-state__icon-wrap {
+  width: 68px; height: 68px; border-radius: 22px;
+  background: linear-gradient(135deg, rgba(139,92,246,0.10), rgba(168,85,247,0.08), rgba(236,72,153,0.06));
+  border: 1.5px solid rgba(139,92,246,0.16);
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 6px;
+  box-shadow: 0 12px 32px rgba(139,92,246,0.12), 0 4px 10px rgba(236,72,153,0.06);
+  transition: transform 0.24s ease, box-shadow 0.24s ease;
+  animation: float 3.5s ease-in-out infinite;
+}
+.empty-state__icon-wrap:hover {
+  transform: scale(1.08) translateY(-3px);
+  box-shadow: 0 18px 44px rgba(139,92,246,0.18), 0 6px 14px rgba(236,72,153,0.10);
+}
+.empty-state__icon { width: 30px; height: 30px; color: var(--cx-violet); }
+
+.empty-state__title {
+  font-family: var(--font-display);
+  font-size: 26px; font-weight: 800;
+  letter-spacing: -0.04em;
+  background: linear-gradient(135deg, #8b5cf6, #a855f7, #ec4899);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text; line-height: 1.1;
+}
+
+.empty-state__subtitle {
+  font-size: 13.5px; color: var(--cx-text-2); line-height: 1.65; max-width: 230px;
+}

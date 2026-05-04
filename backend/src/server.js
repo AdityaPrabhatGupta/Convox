@@ -2,50 +2,82 @@ import "dotenv/config";
 import { createServer } from "http";
 import { Server } from "socket.io";
 import app from "./app.js";
-import initializeSocket from "./socket/socketHandler.js";
-import { setIoInstance } from "./socket/socket.js";
+import { initializeSocket, setIoInstance } from "./socket/index.js";
+import { validateRequiredEnv } from "./config/validateEnv.js";
+import {
+  seedAssistantUser,
+  syncAssistantChatsForAllUsers,
+} from "./services/assistantSeeder.js";
+import { corsOptions, getAllowedOrigins } from "./config/cors.js";
+import logger from "./config/logger.js";
+import { connectRedis, disconnectRedis, initializeSocketRedisAdapter } from "./config/redis.js";
+import socketAuth from "./socket/socketAuth.js";
 
 const PORT = process.env.PORT || 5000;
+validateRequiredEnv();
 
-// Wrap Express app inside Node's HTTP server
 const httpServer = createServer(app);
-
-// Attach Socket.IO to the HTTP server with CORS config
 const io = new Server(httpServer, {
-    cors: {
-        origin: process.env.CLIENT_URL || "http://localhost:3000",
-        methods: ["GET", "POST"],
-        credentials: true,
-    },
-    pingTimeout: 60000,  // drop connection if no response in 60s
-    pingInterval: 25000, // ping client every 25s to keep connection alive
+  cors: {
+    origin: getAllowedOrigins(),
+    methods: ["GET", "POST"],
+    credentials: corsOptions.credentials,
+  },
+  pingTimeout: 60000,
+  pingInterval: 25000,
 });
 
-// Register all socket event listeners
+io.use(socketAuth());
 setIoInstance(io);
 initializeSocket(io);
 
-// Start listening on the given port
-httpServer.listen(PORT, () => {
-    console.log(`
-    
-           CONVOX SERVER LIVE          
-      Port    : ${PORT}                       
-      Mode    : ${process.env.NODE_ENV || "development"}               
-      Health  : http://localhost:${PORT}/api/health
-      Socket  : ✅ Socket.IO attached    
-    
-    `);
+async function startServer() {
+  try {
+    await connectRedis();
+    await initializeSocketRedisAdapter(io).catch((error) => {
+      logger.warn("Socket.IO Redis adapter unavailable. Continuing in single-instance mode.", {
+        error: error.message,
+      });
+    });
+
+    httpServer.listen(PORT, () => {
+      logger.info("Convox server live", {
+        port: Number(PORT),
+        mode: process.env.NODE_ENV || "development",
+        health: `http://localhost:${PORT}/api/health`,
+      });
+    });
+
+    seedAssistantUser()
+      .then(() => syncAssistantChatsForAllUsers())
+      .catch((error) => {
+        logger.error("Assistant seeder failed", { error: error.message });
+      });
+  } catch (error) {
+    logger.error("Failed to start server", { error: error.message });
+    process.exit(1);
+  }
+}
+
+startServer();
+
+async function shutdown(signal, exitCode = 0) {
+  logger.info(`Received ${signal}. Shutting down gracefully.`);
+  httpServer.close(async () => {
+    await disconnectRedis();
+    process.exit(exitCode);
+  });
+}
+
+process.on("unhandledRejection", (error) => {
+  logger.error("Unhandled rejection", { error: error.message, stack: error.stack });
+  shutdown("unhandledRejection", 1);
 });
 
-// Handle unexpected async errors and shut down cleanly
-process.on("unhandledRejection", (err) => {
-    console.error(`Unhandled Rejection: ${err.message}`);
-    httpServer.close(() => process.exit(1));
+process.on("uncaughtException", (error) => {
+  logger.error("Uncaught exception", { error: error.message, stack: error.stack });
+  shutdown("uncaughtException", 1);
 });
 
-// Handle OS termination signal and shut down gracefully
-process.on("SIGTERM", () => {
-    console.log("🛑 SIGTERM received. Shutting down gracefully...");
-    httpServer.close(() => process.exit(0));
-});
+process.on("SIGTERM", () => shutdown("SIGTERM", 0));
+process.on("SIGINT", () => shutdown("SIGINT", 0));
