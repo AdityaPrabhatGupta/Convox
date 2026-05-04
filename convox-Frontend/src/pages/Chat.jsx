@@ -190,20 +190,20 @@ function ConfirmDialog({ open, title, description, confirmLabel, onCancel, onCon
   return createPortal(
     <>
       <div className="cx-overlay-backdrop relationship-modal__backdrop" onClick={onCancel} />
-      <div className="cx-overlay-shell action-dialog-shell" role="dialog" aria-modal="true">
-        <div className="rb__drawer rb__drawer--centered action-dialog">
-          <div className="action-dialog__header">
+      <div className="cx-overlay-shell relationship-modal-shell" role="dialog" aria-modal="true">
+        <div className="rb__drawer rb__drawer--centered relationship-modal">
+          <div className="relationship-modal__header">
             <div>
-              <h3 className="action-dialog__title">{title}</h3>
-              <p className="action-dialog__description">{description}</p>
+              <h3 className="relationship-modal__title">{title}</h3>
+              <p className="relationship-modal__description">{description}</p>
             </div>
-            <button type="button" className="action-dialog__close" onClick={onCancel} aria-label="Close dialog">x</button>
+            <button type="button" className="relationship-modal__close" onClick={onCancel} aria-label="Close dialog">x</button>
           </div>
-          <div className="action-dialog__actions">
-            <button type="button" className="action-dialog__cancel" onClick={onCancel}>
+          <div className="relationship-modal__actions">
+            <button type="button" className="relationship-modal__cancel" onClick={onCancel}>
               Cancel
             </button>
-            <button type="button" className="action-dialog__confirm action-dialog__confirm--danger" onClick={onConfirm}>
+            <button type="button" className="relationship-modal__confirm relationship-modal__confirm--danger" onClick={onConfirm}>
               {confirmLabel}
             </button>
           </div>
