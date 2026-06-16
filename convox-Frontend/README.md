@@ -1,16 +1,43 @@
-# React + Vite
+# Convox Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+React + Vite frontend for Convox.
 
-Currently, two official plugins are available:
+## Local Development
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+```powershell
+npm install
+npm run dev
+```
 
-## React Compiler
+## Environment
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+See:
 
-## Expanding the ESLint configuration
+- [convox-Frontend/.env.example](C:/Users/adity/web development/Convox/convox-Frontend/.env.example)
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+Typical values:
+
+```env
+VITE_API_URL=http://localhost:5000
+VITE_SOCKET_URL=http://localhost:5000
+```
+
+## Production Build
+
+```powershell
+npm run build
+```
+
+## Docker
+
+The production image is defined in:
+
+- [convox-Frontend/Dockerfile](C:/Users/adity/web development/Convox/convox-Frontend/Dockerfile)
+
+The nginx proxy config is:
+
+- [convox-Frontend/nginx.conf](C:/Users/adity/web development/Convox/convox-Frontend/nginx.conf)
+
+For full stack deployment instructions, use:
+
+- [DEPLOYMENT.md](C:/Users/adity/web development/Convox/DEPLOYMENT.md)

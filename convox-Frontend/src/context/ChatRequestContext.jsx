@@ -30,7 +30,7 @@ export const ChatRequestProvider = ({ children }) => {
 
     try {
       const { data } = await axiosInstance.get("/api/chat-requests/incoming");
-      setIncomingRequests(Array.isArray(data) ? data : []);
+      setIncomingRequests(Array.isArray(data?.requests) ? data.requests : []);
     } catch (error) {
       console.error("Failed to fetch incoming requests", error);
     }
@@ -41,7 +41,7 @@ export const ChatRequestProvider = ({ children }) => {
 
     try {
       const { data } = await axiosInstance.get("/api/chat-requests/outgoing");
-      setOutgoingRequests(Array.isArray(data) ? sortRequestsByRecent(data) : []);
+      setOutgoingRequests(Array.isArray(data?.requests) ? sortRequestsByRecent(data.requests) : []);
     } catch (error) {
       console.error("Failed to fetch outgoing requests", error);
     }

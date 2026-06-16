@@ -73,6 +73,11 @@ const messageSchema = new Schema(
             default: null,
         },
 
+        voiceDuration: {
+            type: Number,
+            default: null,
+        },
+
         // For read receipts — use $addToSet when updating, never $push
         readBy: [
             {

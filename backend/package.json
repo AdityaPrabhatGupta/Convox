@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "start": "node src/server.js",
-    "dev": "nodemon src/server.js"
+    "dev": "nodemon src/server.js",
+    "smoke:health": "node ../scripts/smoke-stack.mjs --backend http://localhost:5000/api/health"
   },
   "keywords": [],
   "author": "",

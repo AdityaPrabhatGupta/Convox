@@ -36,7 +36,7 @@ export const getToken = () => {
   }
 
   if (typeof payload.exp === "number" && payload.exp * 1000 <= Date.now()) {
-    clearStoredAuth();
+    // Return null to trigger refresh, but DO NOT clear stored auth/user details
     return null;
   }
 
@@ -45,19 +45,33 @@ export const getToken = () => {
 
 export const isLoggedIn = () => !!getToken();
 
-export const getCurrentUserId = () => {
-  const token = getToken();
-  if (!token) return null;
+export const getStoredUser = () => {
+  if (!isBrowser) return null;
+  const userStr = localStorage.getItem("user") || localStorage.getItem("convox_user");
+  if (!userStr) return null;
+  try {
+    return JSON.parse(userStr);
+  } catch {
+    return null;
+  }
+};
 
+export const getCurrentUserId = () => {
+  const user = getStoredUser();
+  if (user?._id) return String(user._id);
+
+  const token = localStorage.getItem("token");
+  if (!token || token === "undefined" || token === "null") return null;
   const payload = decodeJwtPayload(token);
-  // Fix: use != null instead of truthy check so id=0 is not incorrectly treated as missing
   return payload?.id != null ? String(payload.id) : null;
 };
 
 export const getCurrentUserName = () => {
-  const token = getToken();
-  if (!token) return null;
+  const user = getStoredUser();
+  if (user?.name) return user.name;
 
+  const token = localStorage.getItem("token");
+  if (!token || token === "undefined" || token === "null") return null;
   const payload = decodeJwtPayload(token);
   const name = payload?.name;
   return typeof name === "string" && name.trim() ? name.trim() : null;

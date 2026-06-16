@@ -1,3 +1,5 @@
+import logger from "../config/logger.js";
+
 const GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions";
 const TIMEOUT_MS = 8000;
 const GROQ_MODEL = process.env.GROQ_MODEL || "llama-3.1-8b-instant";
@@ -78,7 +80,7 @@ export async function getSmartReplies(messages) {
 
     return replies.length ? replies : [];
   } catch (error) {
-    console.error("[aiService] smartReplies failed:", error.message);
+    logger.warn("AI smart replies failed", { error: error.message });
     return [];
   }
 }
@@ -104,7 +106,7 @@ export async function summarizeChat(messages) {
     );
     return summary || null;
   } catch (error) {
-    console.error("[aiService] summarizeChat failed:", error.message);
+    logger.warn("AI summarize chat failed", { error: error.message });
     return null;
   }
 }
@@ -128,7 +130,7 @@ export async function contextualAnswer(query, messages) {
     );
     return answer || "I couldn't find a good answer for that.";
   } catch (error) {
-    console.error("[aiService] contextualAnswer failed:", error.message);
+    logger.warn("AI contextual answer failed", { error: error.message });
     return "I couldn't process that right now. Please try again.";
   }
 }
@@ -151,7 +153,7 @@ export async function getAssistantReply(userMessage) {
     );
     return reply || getAssistantFallback(userMessage);
   } catch (error) {
-    console.error("[aiService] assistantReply failed:", error.message);
+    logger.warn("AI assistant reply failed", { error: error.message });
     return getAssistantFallback(userMessage);
   }
 }

@@ -1,4 +1,5 @@
 import { Chat, Message, User } from "../models/index.js";
+import logger from "../config/logger.js";
 
 const ASSISTANT_EMAIL = "assistant@convox.app";
 const WELCOME_MESSAGE = `Hey 👋 I’m your Convox Assistant.
@@ -44,7 +45,7 @@ export async function seedAssistantUser() {
     assistantUserId = bot._id;
     return bot;
   } catch (error) {
-    console.error("[assistant] Failed to seed assistant user:", error.message);
+    logger.error("Failed to seed assistant user", { error: error.message });
     return null;
   }
 }
@@ -99,7 +100,9 @@ export async function createOnboardingConversation(newUserId) {
   try {
     const botId = await resolveAssistantUserId();
     if (!botId) {
-      console.error("[assistant] Cannot create onboarding chat: bot user unavailable.");
+      logger.warn("Cannot create onboarding chat because assistant user is unavailable", {
+        newUserId: String(newUserId),
+      });
       return;
     }
 
@@ -121,10 +124,10 @@ export async function createOnboardingConversation(newUserId) {
 
     await seedWelcomeMessage(chat._id, botId);
   } catch (error) {
-    console.error(
-      "[assistant] Failed to create onboarding conversation:",
-      error.message,
-    );
+    logger.error("Failed to create onboarding conversation", {
+      error: error.message,
+      newUserId: String(newUserId),
+    });
   }
 }
 
@@ -136,6 +139,6 @@ export async function syncAssistantChatsForAllUsers() {
       await createOnboardingConversation(user._id);
     }
   } catch (error) {
-    console.error("[assistant] Failed to sync assistant chats:", error.message);
+    logger.error("Failed to sync assistant chats", { error: error.message });
   }
 }

@@ -1,151 +1,158 @@
-# 💬 Convox — Real-Time Chat Application
+# Convox
 
-Convox is a full-stack real-time chat application built using the MERN stack. It allows users to communicate instantly with secure authentication and a modern chat interface.
+Convox is a production-oriented MERN real-time chat application with:
 
----
+- email/password auth and Google OAuth
+- JWT access tokens plus refresh-token cookies
+- Socket.IO realtime messaging and calling
+- media uploads through Cloudinary
+- Redis-backed caching and multi-instance Socket.IO scaling
+- Groq-powered assistant chat
+- Docker-based local and production-style deployment
 
-## 🚀 Features
+## Stack
 
-* 🔐 User Authentication (JWT-based)
-* 🔑 Secure Login & Signup (Password hashing with bcrypt)
-* 💬 One-to-One Chat System
-* 📩 Real-Time Messaging (Socket.IO - upcoming)
-* 📜 Chat History (Load previous messages)
-* 🧠 Smart Chat Creation (No duplicate chats)
-* 📊 Latest Message Preview
-* ⚡ Fast and responsive backend
+- Backend: Node.js, Express, MongoDB, Mongoose, Socket.IO, Redis, Winston
+- Frontend: React, Vite, Axios, socket.io-client
+- Infra: Docker, Docker Compose, nginx
 
----
+## Project Layout
 
-## 🛠️ Tech Stack
-
-### Backend:
-
-* Node.js
-* Express.js
-* MongoDB
-* Mongoose
-* JWT (Authentication)
-* bcrypt (Password hashing)
-
-### Frontend (Planned / In Progress):
-
-* React.js
-* Axios
-* Context API / Redux
-
----
-
-## 📁 Folder Structure
-
-```
-/backend
-  /controllers
-  /models
-  /routes
-  /middleware
-  /config
-  server.js
+```text
+backend/
+convox-Frontend/
+docker-compose.yml
+README.md
+DEPLOYMENT.md
 ```
 
----
+## Environment
 
-## ⚙️ Environment Variables
+Backend env template:
 
-Create a `.env` file in the root directory:
+- [backend/.env.example](C:/Users/adity/web development/Convox/backend/.env.example)
 
-```
+Frontend env template:
+
+- [convox-Frontend/.env.example](C:/Users/adity/web development/Convox/convox-Frontend/.env.example)
+
+Minimum backend envs for non-Docker local development:
+
+```env
 PORT=5000
-MONGO_URI=your_mongodb_connection_string
-JWT_SECRET=your_secret_key
+NODE_ENV=development
+CLIENT_URL=http://localhost:5173
+BACKEND_URL=http://localhost:5000
+MONGO_URI=mongodb://localhost:27017/convox
+REDIS_URL=redis://localhost:6379
+JWT_SECRET=replace-with-strong-access-secret
+JWT_REFRESH_SECRET=replace-with-strong-refresh-secret
+ACCESS_TOKEN_EXPIRES_IN=15m
+REFRESH_TOKEN_EXPIRES_IN=7d
 ```
 
----
+## Local Development
 
-## 🚀 Installation & Setup
+Backend:
 
-### 1. Clone the repository
-
-```
-git clone https://github.com/your-username/convox.git
-cd convox/backend
-```
-
-### 2. Install dependencies
-
-```
+```powershell
+cd backend
 npm install
-```
-
-### 3. Run the server
-
-```
 npm run dev
 ```
 
-Server will run on:
+Frontend:
 
+```powershell
+cd convox-Frontend
+npm install
+npm run dev
 ```
-http://localhost:5000
+
+## Docker
+
+The repo now includes:
+
+- [backend/Dockerfile](C:/Users/adity/web development/Convox/backend/Dockerfile)
+- [convox-Frontend/Dockerfile](C:/Users/adity/web development/Convox/convox-Frontend/Dockerfile)
+- [convox-Frontend/nginx.conf](C:/Users/adity/web development/Convox/convox-Frontend/nginx.conf)
+- [docker-compose.yml](C:/Users/adity/web development/Convox/docker-compose.yml)
+
+Start the full stack:
+
+```powershell
+docker compose up --build
 ```
 
----
+Quick health smoke test after startup:
 
-## 🔗 API Endpoints
+```powershell
+cd backend
+npm run smoke:health
+```
 
-### 🔐 Auth Routes
+Default ports:
 
-* POST `/api/users/register` → Register user
-* POST `/api/users/login` → Login user
+- Frontend: `http://localhost:8080`
+- Backend: `http://localhost:5000`
+- MongoDB: `localhost:27017`
+- Redis: `localhost:6379`
 
-### 💬 Chat Routes
+## Health Check
 
-* POST `/api/chat` → Create or access chat
-* GET `/api/chat` → Fetch all chats
+Backend health endpoint:
 
-### 📩 Message Routes
+```text
+GET /api/health
+```
 
-* POST `/api/message` → Send message
-* GET `/api/message/:chatId` → Get all messages
+It reports:
 
----
+- environment
+- process uptime
+- MongoDB readiness
+- Redis readiness
 
-## 🧠 Learning Highlights
+## Security / Runtime Highlights
 
-* REST API Design
-* Authentication & Authorization (JWT)
-* MongoDB Schema Design & Relationships
-* Backend Architecture (MVC Pattern)
-* Real-time communication (Socket.IO - upcoming)
+- access JWTs are short-lived
+- refresh tokens are stored as `HttpOnly` cookies and hashed in MongoDB
+- API routes are protected with centralized JWT middleware
+- Socket.IO handshakes require JWT auth
+- auth and API rate limiting are enabled
+- uploads validate MIME type, extension, and size
+- centralized error handling prevents leaking sensitive internals
+- Winston request/error logging is enabled
 
----
+## Key API Areas
 
-## 🔥 Upcoming Features
+- Auth: `/api/users/register`, `/api/users/login`, `/api/users/refresh`, `/api/users/logout`
+- Chat: `/api/chat`
+- Messages: `/api/messages`
+- Groups: `/api/groups`
+- Chat requests: `/api/chat-requests`
+- Assistant: `/api/assistant`, `/api/ai`
 
-* 🌐 Real-Time Messaging (Socket.IO)
-* 🟢 Online/Offline Status
-* ✍️ Typing Indicator
-* 📸 File/Image Sharing
-* 🔐 Google Authentication
-* 🎨 Modern Chat UI
+## Pagination
 
----
+Message history uses cursor-style pagination on:
 
-## 🤝 Contribution
+```text
+GET /api/messages/:chatId?limit=30&before=<ISO timestamp>
+```
 
-Contributions are welcome! Feel free to fork the repo and submit pull requests.
+The backend returns each page in oldest-to-newest order for direct rendering by the client.
 
----
+## Deployment Notes
 
-## 📌 Author
+The practical runbook lives here:
 
-Aditya Prabhat Gupta
-MERN Stack Developer
+- [DEPLOYMENT.md](C:/Users/adity/web development/Convox/DEPLOYMENT.md)
 
----
+That file covers:
 
-## ⭐ Show Your Support
-
-If you like this project, give it a ⭐ on GitHub!
-
----
+- env setup
+- Docker startup
+- smoke tests
+- deployment targets
+- common failure checks

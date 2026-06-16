@@ -1,11 +1,29 @@
+import mongoose from "mongoose";
 import { Chat, User, Message } from "../models/index.js";
 import asyncHandler from "../utils/asyncHandler.js";
 import { io } from "../socket/socket.js";
+import logger from "../config/logger.js";
+import { cacheDelete, cacheKeys } from "../config/redis.js";
 
 const normalizeId = (value) => String(value?._id || value || "");
 
 const POPULATE_USERS =
   "name email profilePic bio lastSeen blockedUsers removedUsers isBot";
+
+const ensureValidObjectId = (value, fieldName) => {
+  if (!mongoose.Types.ObjectId.isValid(value)) {
+    const error = new Error(`Invalid ${fieldName}.`);
+    error.statusCode = 400;
+    throw error;
+  }
+};
+
+const invalidateUserChats = async (userIds = []) =>
+  Promise.all(
+    [...new Set(userIds.map(normalizeId).filter(Boolean))].map((userId) =>
+      cacheDelete(cacheKeys.userChats(userId)),
+    ),
+  );
 
 async function populateChat(chatId) {
   return Chat.findById(chatId)
@@ -38,6 +56,7 @@ export const createGroup = asyncHandler(async (req, res) => {
   const uniqueIds = [
     ...new Set([normalizeId(req.user._id), ...memberIds.map(String)]),
   ];
+  uniqueIds.forEach((id) => ensureValidObjectId(id, "member id"));
 
   if (uniqueIds.length < 2) {
     res.status(400);
@@ -68,11 +87,20 @@ export const createGroup = asyncHandler(async (req, res) => {
   await Chat.findByIdAndUpdate(group._id, { latestMessage: welcomeMessage._id });
 
   const populated = await populateChat(group._id);
+  await invalidateUserChats(uniqueIds);
+
+  logger.info("Group created", {
+    chatId: normalizeId(group._id),
+    adminId: normalizeId(req.user._id),
+    memberCount: uniqueIds.length,
+  });
+
   res.status(201).json({ success: true, chat: populated });
 });
 
 export const getGroup = asyncHandler(async (req, res) => {
   const { chatId } = req.params;
+  ensureValidObjectId(chatId, "chat id");
 
   const group = await Chat.findOne({
     _id: chatId,
@@ -93,6 +121,7 @@ export const getGroup = asyncHandler(async (req, res) => {
 export const renameGroup = asyncHandler(async (req, res) => {
   const { chatId } = req.params;
   const { name } = req.body;
+  ensureValidObjectId(chatId, "chat id");
 
   if (!name?.trim()) {
     res.status(400);
@@ -129,9 +158,16 @@ export const renameGroup = asyncHandler(async (req, res) => {
   await Chat.findByIdAndUpdate(chatId, { latestMessage: message._id });
 
   const populated = await populateChat(chatId);
+  await invalidateUserChats(group.users);
   io.to(String(chatId)).emit("groupUpdated", {
     chatId: String(chatId),
     event: "renamed",
+    groupName: name.trim(),
+  });
+
+  logger.info("Group renamed", {
+    chatId: String(chatId),
+    adminId: normalizeId(req.user._id),
     groupName: name.trim(),
   });
 
@@ -141,6 +177,7 @@ export const renameGroup = asyncHandler(async (req, res) => {
 export const addMembers = asyncHandler(async (req, res) => {
   const { chatId } = req.params;
   const { memberIds = [] } = req.body;
+  ensureValidObjectId(chatId, "chat id");
 
   if (!Array.isArray(memberIds) || memberIds.length === 0) {
     res.status(400);
@@ -164,6 +201,7 @@ export const addMembers = asyncHandler(async (req, res) => {
   }
 
   const currentIds = group.users.map((user) => normalizeId(user));
+  memberIds.forEach((id) => ensureValidObjectId(id, "member id"));
   const toAdd = [...new Set(memberIds.map(String))].filter(
     (id) => !currentIds.includes(id),
   );
@@ -199,9 +237,16 @@ export const addMembers = asyncHandler(async (req, res) => {
   await Chat.findByIdAndUpdate(chatId, { latestMessage: message._id });
 
   const populated = await populateChat(chatId);
+  await invalidateUserChats([...group.users, ...toAdd]);
   io.to(String(chatId)).emit("groupUpdated", {
     chatId: String(chatId),
     event: "memberAdded",
+    addedIds: toAdd,
+  });
+
+  logger.info("Group members added", {
+    chatId: String(chatId),
+    adminId: normalizeId(req.user._id),
     addedIds: toAdd,
   });
 
@@ -210,6 +255,8 @@ export const addMembers = asyncHandler(async (req, res) => {
 
 export const removeMember = asyncHandler(async (req, res) => {
   const { chatId, memberId } = req.params;
+  ensureValidObjectId(chatId, "chat id");
+  ensureValidObjectId(memberId, "member id");
 
   const group = await Chat.findOne({
     _id: chatId,
@@ -232,6 +279,11 @@ export const removeMember = asyncHandler(async (req, res) => {
     throw new Error("Admin cannot remove themselves. Transfer admin or leave the group.");
   }
 
+  if (!group.users.map(normalizeId).includes(String(memberId))) {
+    res.status(400);
+    throw new Error("User is not a member of this group.");
+  }
+
   const removedUser = await User.findById(memberId).select("name");
   if (!removedUser) {
     res.status(404);
@@ -252,9 +304,16 @@ export const removeMember = asyncHandler(async (req, res) => {
   await Chat.findByIdAndUpdate(chatId, { latestMessage: message._id });
 
   const populated = await populateChat(chatId);
+  await invalidateUserChats([...group.users, memberId]);
   io.to(String(chatId)).emit("groupUpdated", {
     chatId: String(chatId),
     event: "memberRemoved",
+    removedId: String(memberId),
+  });
+
+  logger.info("Group member removed", {
+    chatId: String(chatId),
+    adminId: normalizeId(req.user._id),
     removedId: String(memberId),
   });
 
@@ -267,6 +326,7 @@ export const removeMember = asyncHandler(async (req, res) => {
 
 export const leaveGroup = asyncHandler(async (req, res) => {
   const { chatId } = req.params;
+  ensureValidObjectId(chatId, "chat id");
   const userId = normalizeId(req.user._id);
 
   const group = await Chat.findOne({
@@ -289,6 +349,11 @@ export const leaveGroup = asyncHandler(async (req, res) => {
       await Message.deleteMany({ chat: chatId });
       await Chat.deleteOne({ _id: chatId });
       io.to(String(chatId)).emit("groupDissolved", { chatId: String(chatId) });
+      await invalidateUserChats([userId]);
+      logger.info("Group dissolved by last admin leaving", {
+        chatId: String(chatId),
+        userId,
+      });
       res.status(200).json({ success: true, dissolved: true, chatId });
       return;
     }
@@ -307,9 +372,15 @@ export const leaveGroup = asyncHandler(async (req, res) => {
     });
 
     await Chat.findByIdAndUpdate(chatId, { latestMessage: message._id });
+    await invalidateUserChats([...remaining, userId]);
     io.to(String(chatId)).emit("groupUpdated", {
       chatId: String(chatId),
       event: "memberLeft",
+      userId,
+      newAdminId: String(remaining[0]),
+    });
+    logger.info("Group admin left and admin transferred", {
+      chatId: String(chatId),
       userId,
       newAdminId: String(remaining[0]),
     });
@@ -326,9 +397,14 @@ export const leaveGroup = asyncHandler(async (req, res) => {
     });
 
     await Chat.findByIdAndUpdate(chatId, { latestMessage: message._id });
+    await invalidateUserChats([...group.users, userId]);
     io.to(String(chatId)).emit("groupUpdated", {
       chatId: String(chatId),
       event: "memberLeft",
+      userId,
+    });
+    logger.info("Group member left", {
+      chatId: String(chatId),
       userId,
     });
   }
@@ -338,6 +414,7 @@ export const leaveGroup = asyncHandler(async (req, res) => {
 
 export const deleteGroup = asyncHandler(async (req, res) => {
   const { chatId } = req.params;
+  ensureValidObjectId(chatId, "chat id");
 
   const group = await Chat.findOne({
     _id: chatId,
@@ -355,9 +432,16 @@ export const deleteGroup = asyncHandler(async (req, res) => {
     throw new Error("Only the group admin can delete this group.");
   }
 
+  const participantIds = group.users.map(normalizeId);
   await Message.deleteMany({ chat: chatId });
   await Chat.deleteOne({ _id: chatId });
+  await invalidateUserChats(participantIds);
   io.to(String(chatId)).emit("groupDissolved", { chatId: String(chatId) });
+
+  logger.info("Group deleted", {
+    chatId: String(chatId),
+    adminId: normalizeId(req.user._id),
+  });
 
   res.status(200).json({ success: true, chatId });
 });
@@ -365,11 +449,14 @@ export const deleteGroup = asyncHandler(async (req, res) => {
 export const transferAdmin = asyncHandler(async (req, res) => {
   const { chatId } = req.params;
   const { newAdminId } = req.body;
+  ensureValidObjectId(chatId, "chat id");
 
   if (!newAdminId) {
     res.status(400);
     throw new Error("newAdminId is required.");
   }
+
+  ensureValidObjectId(newAdminId, "new admin id");
 
   const group = await Chat.findOne({
     _id: chatId,
@@ -407,9 +494,16 @@ export const transferAdmin = asyncHandler(async (req, res) => {
   await Chat.findByIdAndUpdate(chatId, { latestMessage: message._id });
 
   const populated = await populateChat(chatId);
+  await invalidateUserChats(group.users);
   io.to(String(chatId)).emit("groupUpdated", {
     chatId: String(chatId),
     event: "adminChanged",
+    newAdminId: String(newAdminId),
+  });
+
+  logger.info("Group admin transferred", {
+    chatId: String(chatId),
+    previousAdminId: normalizeId(req.user._id),
     newAdminId: String(newAdminId),
   });
 

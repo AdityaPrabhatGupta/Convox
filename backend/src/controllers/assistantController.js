@@ -3,6 +3,7 @@ import { Chat, Message } from "../models/index.js";
 import asyncHandler from "../utils/asyncHandler.js";
 import { io } from "../socket/socket.js";
 import { getAssistantUserId } from "../services/assistantSeeder.js";
+import logger from "../config/logger.js";
 import {
   contextualAnswer,
   getAssistantReply,
@@ -29,6 +30,23 @@ async function getBotChat(chatId, userId) {
 
   if (!chat) {
     const error = new Error("Assistant chat not found or access denied");
+    error.statusCode = 403;
+    throw error;
+  }
+
+  return chat;
+}
+
+async function getReadableChat(chatId, userId) {
+  if (!mongoose.Types.ObjectId.isValid(chatId)) {
+    const error = new Error("Invalid chatId");
+    error.statusCode = 400;
+    throw error;
+  }
+
+  const chat = await Chat.findOne({ _id: chatId, users: userId });
+  if (!chat) {
+    const error = new Error("Chat not found or access denied");
     error.statusCode = 403;
     throw error;
   }
@@ -94,8 +112,7 @@ async function normalizeAssistantQuota(chat, userId) {
 
   if (
     typeof chat.assistantQuotaCount === "number" &&
-    Number.isFinite(chat.assistantQuotaCount) &&
-    (chat.assistantQuotaCount > 0 || chat.assistantQuotaResetAt)
+    Number.isFinite(chat.assistantQuotaCount)
   ) {
     return {
       count: chat.assistantQuotaCount,
@@ -171,7 +188,7 @@ export const sendAssistantMessage = asyncHandler(async (req, res) => {
   );
 
   if (userMsgCount >= ASSISTANT_MSG_LIMIT) {
-    const msLeft = Math.max(0, resetAt - Date.now());
+    const msLeft = Math.max(0, (resetAt || Date.now()) - Date.now());
     const hoursLeft = Math.floor(msLeft / (1000 * 60 * 60));
     const minutesLeft = Math.floor(
       (msLeft % (1000 * 60 * 60)) / (1000 * 60),
@@ -229,6 +246,12 @@ export const sendAssistantMessage = asyncHandler(async (req, res) => {
     ...buildAssistantStatus(newCount, quotaResetAt),
   });
 
+  logger.info("Assistant message accepted", {
+    chatId: String(chatId),
+    userId: String(req.user._id),
+    quotaUsed: newCount,
+  });
+
   setImmediate(() => {
     io.to(chatId).emit("assistantTyping", { chatId });
   });
@@ -237,6 +260,10 @@ export const sendAssistantMessage = asyncHandler(async (req, res) => {
     try {
       const assistantId = getAssistantUserId();
       if (!assistantId) {
+        logger.warn("Assistant reply skipped because assistant user is unavailable", {
+          chatId: String(chatId),
+          userId: String(req.user._id),
+        });
         io.to(chatId).emit("assistantTypingStop", { chatId });
         return;
       }
@@ -267,7 +294,11 @@ export const sendAssistantMessage = asyncHandler(async (req, res) => {
         participantIds: chat.users.map(String),
       });
     } catch (error) {
-      console.error("[assistant] AI reply failed:", error.message);
+      logger.error("Assistant AI reply failed", {
+        chatId: String(chatId),
+        userId: String(req.user._id),
+        error: error.message,
+      });
     } finally {
       io.to(chatId).emit("assistantTypingStop", { chatId });
     }
@@ -288,17 +319,7 @@ export const getAssistantStatus = asyncHandler(async (req, res) => {
 
 export const getSmartRepliesHandler = asyncHandler(async (req, res) => {
   const { chatId } = req.params;
-
-  if (!mongoose.Types.ObjectId.isValid(chatId)) {
-    res.status(400);
-    throw new Error("Invalid chatId");
-  }
-
-  const chat = await Chat.findOne({ _id: chatId, users: req.user._id });
-  if (!chat) {
-    res.status(403);
-    throw new Error("Chat not found or access denied");
-  }
+  await getReadableChat(chatId, req.user._id);
 
   const recentMessages = await Message.find({
     chat: chatId,
@@ -320,17 +341,7 @@ export const getSmartRepliesHandler = asyncHandler(async (req, res) => {
 
 export const summarizeChatHandler = asyncHandler(async (req, res) => {
   const { chatId } = req.params;
-
-  if (!mongoose.Types.ObjectId.isValid(chatId)) {
-    res.status(400);
-    throw new Error("Invalid chatId");
-  }
-
-  const chat = await Chat.findOne({ _id: chatId, users: req.user._id });
-  if (!chat) {
-    res.status(403);
-    throw new Error("Chat not found or access denied");
-  }
+  await getReadableChat(chatId, req.user._id);
 
   const recentMessages = await Message.find({
     chat: chatId,
@@ -370,16 +381,7 @@ export const contextualAnswerHandler = asyncHandler(async (req, res) => {
     throw new Error("Query is required");
   }
 
-  if (!mongoose.Types.ObjectId.isValid(chatId)) {
-    res.status(400);
-    throw new Error("Invalid chatId");
-  }
-
-  const chat = await Chat.findOne({ _id: chatId, users: req.user._id });
-  if (!chat) {
-    res.status(403);
-    throw new Error("Chat not found or access denied");
-  }
+  await getReadableChat(chatId, req.user._id);
 
   const recentMessages = await Message.find({
     chat: chatId,

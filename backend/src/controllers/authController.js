@@ -19,7 +19,11 @@ import {
   verifyRefreshToken,
 } from "../utils/tokens.js";
 
-const clientUrl = process.env.CLIENT_URL || "http://localhost:5173";
+function getClientUrl(req) {
+  if (process.env.CLIENT_URL) return process.env.CLIENT_URL.replace(/\/$/, "");
+  if (req?.headers?.origin) return String(req.headers.origin).replace(/\/$/, "");
+  return "http://localhost:5173";
+}
 
 const publicUser = (user) => ({
   _id: user._id,
@@ -95,6 +99,20 @@ function clearRefreshCookie(res) {
   res.clearCookie("refreshToken", getRefreshCookieOptions());
 }
 
+async function clearStoredSession(userId) {
+  if (!userId) return;
+  await User.findByIdAndUpdate(userId, {
+    $set: {
+      refreshTokenHash: null,
+      refreshTokenExpiresAt: null,
+    },
+  });
+}
+
+function redirectToLoginError(res, req, code) {
+  res.redirect(`${getClientUrl(req)}/login?error=${encodeURIComponent(code)}`);
+}
+
 export const registerUser = asyncHandler(async (req, res) => {
   const { name, email, password } = req.body;
 
@@ -126,6 +144,11 @@ export const registerUser = asyncHandler(async (req, res) => {
     success: true,
     message: "Account created successfully",
     ...payload,
+  });
+
+  logger.info("User registered", {
+    userId: String(user._id),
+    email: user.email,
   });
 
   createOnboardingConversation(user._id).catch((error) => {
@@ -165,6 +188,11 @@ export const loginUser = asyncHandler(async (req, res) => {
     message: "Login successful",
     ...payload,
   });
+
+  logger.info("User logged in", {
+    userId: String(user._id),
+    email: user.email,
+  });
 });
 
 export const refreshSession = asyncHandler(async (req, res) => {
@@ -183,12 +211,14 @@ export const refreshSession = asyncHandler(async (req, res) => {
   }
 
   if (user.refreshTokenExpiresAt && user.refreshTokenExpiresAt.getTime() < Date.now()) {
+    await clearStoredSession(user._id);
     res.status(401);
     throw new Error("Refresh token expired");
   }
 
   const matches = await compareToken(refreshToken, user.refreshTokenHash);
   if (!matches) {
+    await clearStoredSession(user._id);
     res.status(401);
     throw new Error("Refresh token invalid");
   }
@@ -200,6 +230,10 @@ export const refreshSession = asyncHandler(async (req, res) => {
     message: "Session refreshed",
     ...payload,
   });
+
+  logger.info("Session refreshed", {
+    userId: String(user._id),
+  });
 });
 
 export const logoutUser = asyncHandler(async (req, res) => {
@@ -208,12 +242,8 @@ export const logoutUser = asyncHandler(async (req, res) => {
   if (refreshToken) {
     try {
       const decoded = verifyRefreshToken(refreshToken);
-      await User.findByIdAndUpdate(decoded.id, {
-        $set: {
-          refreshTokenHash: null,
-          refreshTokenExpiresAt: null,
-        },
-      });
+      await clearStoredSession(decoded.id);
+      logger.info("User logged out", { userId: String(decoded.id) });
     } catch {
       // Clear cookie even if token is already invalid.
     }
@@ -257,10 +287,11 @@ export const googleAuth = (req, res) => {
 };
 
 export const googleCallback = asyncHandler(async (req, res) => {
+  const clientUrl = getClientUrl(req);
   const { code, error } = req.query;
 
   if (error || !code) {
-    res.redirect(`${clientUrl}/login?error=google_denied`);
+    redirectToLoginError(res, req, "google_denied");
     return;
   }
 
@@ -269,7 +300,7 @@ export const googleCallback = asyncHandler(async (req, res) => {
     const { id: googleId, email, name, picture } = profile;
 
     if (!email) {
-      res.redirect(`${clientUrl}/login?error=no_email`);
+      redirectToLoginError(res, req, "no_email");
       return;
     }
 
@@ -302,9 +333,13 @@ export const googleCallback = asyncHandler(async (req, res) => {
 
     const payload = await issueSession(res, user);
     const userData = encodeURIComponent(JSON.stringify(payload.data));
+    logger.info("Google auth completed", {
+      userId: String(user._id),
+      email: user.email,
+    });
     res.redirect(`${clientUrl}/auth/callback?token=${payload.token}&user=${userData}`);
   } catch (googleError) {
     logger.error("Google OAuth callback failed", { error: googleError.message });
-    res.redirect(`${clientUrl}/login?error=google_failed`);
+    redirectToLoginError(res, req, "google_failed");
   }
 });

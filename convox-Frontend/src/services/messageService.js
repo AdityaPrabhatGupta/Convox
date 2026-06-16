@@ -26,12 +26,15 @@ export async function sendMessage({ chatId, content, replyTo }) {
   return response.data?.data;
 }
 
-export async function uploadMediaMessage({ chatId, file, replyTo, onUploadProgress }) {
+export async function uploadMediaMessage({ chatId, file, replyTo, voiceDuration, onUploadProgress }) {
   const formData = new FormData();
   formData.append("file", file);
   formData.append("chatId", chatId);
   if (replyTo) {
     formData.append("replyTo", replyTo);
+  }
+  if (voiceDuration != null) {
+    formData.append("voiceDuration", voiceDuration);
   }
 
   const response = await axiosInstance.post("/api/messages/upload", formData, {

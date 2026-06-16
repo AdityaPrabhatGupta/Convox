@@ -20,6 +20,7 @@ import {
   togglePinMessage as togglePinMessageApi,
   reactToMessage,
   sendMessage as sendMessageApi,
+  uploadMediaMessage,
 } from "../../services/messageService.js";
 import { joinChat, leaveCurrentChat, subscribeToMessages, socket } from "../../services/socket.js";
 import { sendAssistantMessage, askAboutChat } from "../../services/aiService.js";
@@ -224,7 +225,7 @@ const fmt = (message, currentUserId) => {
     isPinned: Boolean(message.pinnedAt),
     forwardedFrom: isActuallyForwarded(message.forwardedFrom) ? message.forwardedFrom : null,
     replyTo: buildReplyPreview(message.replyTo, currentUserId),
-    voiceUrl: message.voiceUrl || "",
+    voiceUrl: message.voiceUrl || (message.type === "audio" ? message.mediaUrl : ""),
     voiceDuration: Number(message.voiceDuration || 0),
     type: message.type || (message.voiceUrl ? "audio" : "text"),
     mediaUrl: message.mediaUrl || "",
@@ -1373,11 +1374,13 @@ export default function ChatWindow({
     updateStatusFromResponse,
   ]);
 
-  const handleVoiceMessageSent = useCallback(({ url, duration, mimeType }, replyToId) => {
-    if (!url) return;
+  const handleVoiceMessageSent = useCallback(async ({ blob, url, duration, mimeType }, replyToId) => {
+    if (!blob) return;
+
+    const tempId = `temp-voice-${Date.now()}`;
     const replySource = replyToId ? messagesRef.current.find((message) => message.id === replyToId) : null;
-    const voiceMessage = fmt({
-      id: `voice-${Date.now()}`,
+    const optimistic = fmt({
+      id: tempId,
       senderId: currentUserId,
       senderName: currentUserName || "You",
       text: "Voice note",
@@ -1385,11 +1388,39 @@ export default function ChatWindow({
       voiceUrl: url,
       voiceDuration: duration,
       mimeType,
+      isPending: true,
       replyTo: replySource ? buildReplyPreview(replySource, currentUserId) : null,
     }, currentUserId);
 
-    setMessages((prev) => [...prev, voiceMessage]);
-  }, [currentUserId, currentUserName]);
+    setMessages((prev) => [...prev, optimistic]);
+
+    try {
+      const file = new File([blob], "voice-note.webm", { type: mimeType || "audio/webm" });
+      const savedMessage = await uploadMediaMessage({
+        chatId: chat.id,
+        file,
+        replyTo: replyToId,
+        voiceDuration: duration,
+      });
+
+      if (savedMessage) {
+        const formatted = fmt(savedMessage, currentUserId);
+        setMessages((prev) =>
+          prev.map((message) => (message.id === tempId ? formatted : message)),
+        );
+        onMessageSent?.(savedMessage);
+      }
+    } catch (error) {
+      setMessages((prev) =>
+        prev.map((message) =>
+          message.id === tempId
+            ? { ...message, isPending: false, hasError: true }
+            : message,
+        ),
+      );
+      setActionError(error.response?.data?.message || "Could not send that voice note.");
+    }
+  }, [chat?.id, currentUserId, currentUserName, onMessageSent]);
 
   const handleMediaMessageSent = useCallback((savedMessage) => {
     if (!savedMessage?._id) return;

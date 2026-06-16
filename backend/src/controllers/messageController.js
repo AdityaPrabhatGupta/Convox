@@ -76,7 +76,7 @@ const populateMessageById = async (messageId) =>
     .populate("reactions.user", "name email profilePic")
     .populate({
       path: "replyTo",
-      select: "content type fileName mediaUrl isDeletedForEveryone sender createdAt",
+      select: "content type fileName mediaUrl voiceDuration isDeletedForEveryone sender createdAt",
       populate: {
         path: "sender",
         select: "name email profilePic",
@@ -134,6 +134,7 @@ const emitMessageCreated = (savedMessage) => {
     fileSize: savedMessage.fileSize || null,
     mimeType: savedMessage.mimeType || null,
     replyTo: savedMessage.replyTo || null,
+    voiceDuration: savedMessage.voiceDuration || null,
     forwardedFrom: savedMessage.forwardedFrom || null,
   });
 
@@ -244,6 +245,7 @@ const uploadMedia = asyncHandler(async (req, res) => {
     fileName,
     fileSize,
     mimeType,
+    voiceDuration: req.body.voiceDuration ? Number(req.body.voiceDuration) : null,
     replyTo: replyMessage?._id || null,
   });
 
@@ -514,6 +516,7 @@ const forwardMessages = asyncHandler(async (req, res) => {
         fileName: source.fileName || null,
         fileSize: source.fileSize || null,
         mimeType: source.mimeType || null,
+        voiceDuration: source.voiceDuration || null,
         forwardedFrom: {
           messageId: source._id,
           senderName: source.sender?.name || "",

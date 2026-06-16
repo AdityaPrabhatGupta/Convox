@@ -55,7 +55,7 @@ export function getRefreshCookieOptions() {
     httpOnly: true,
     secure,
     sameSite: secure ? "none" : "lax",
-    path: "/api/users/refresh",
+    path: "/api/users",
     maxAge: durationToMs(REFRESH_TOKEN_EXPIRES_IN, 7 * 24 * 60 * 60 * 1000),
   };
 }
